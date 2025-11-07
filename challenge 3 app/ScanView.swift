@@ -10,10 +10,14 @@ import SwiftUI
 struct ScanView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("EXPIRING SOON")
+                .font(.system(size: 35))
+                .font(.callout)
+                .bold()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            
+            
+            
         }
         .padding()
     }
