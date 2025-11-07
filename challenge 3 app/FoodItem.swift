@@ -6,12 +6,18 @@
 //
 import Foundation
 
-struct FoodItem: Identifiable, Codable {
+struct FoodItem: Identifiable {
     var id = UUID()
-    var name: String
-    var scannedDate: Date
-    var expiryDate: Date
-    var location: FoodLocation
+    var nameOfFood: String
+    var dateScanned: Date
+    var dateExpiring: Date
+    var daysToExpiry: Int {
+        let fromDate = Calendar.current.startOfDay(for: Date())
+        let toDate = Calendar.current.startOfDay(for: dateExpiring)
+        let numberOfDays = Calendar.current.dateComponents([.day], from: fromDate, to: toDate)
+        
+        return numberOfDays.day!
+    }
 }
 
 enum FoodLocation: String, Codable, CaseIterable {

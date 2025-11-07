@@ -12,19 +12,6 @@ enum Foodtype: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-struct FoodItem: Identifiable{
-    var id = UUID()
-    var nameOfFood: String
-    var dateScanned: Date
-    var dateExpiring: Date
-    var daysToExpiry: Int {
-        let fromDate = Calendar.current.startOfDay(for: Date())
-        let toDate = Calendar.current.startOfDay(for: dateExpiring)
-        let numberOfDays = Calendar.current.dateComponents([.day], from: fromDate, to: toDate)
-        
-        return numberOfDays.day!
-    }
-}
 struct ContentView: View {
     
     @State private var selectedType: Foodtype = .all
