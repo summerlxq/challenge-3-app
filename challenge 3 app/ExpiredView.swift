@@ -1,0 +1,35 @@
+//
+//  ExpiredView.swift
+//  challenge 3 app
+//
+//  Created by Ashley Leng on 7/11/25.
+//
+
+import SwiftUI
+
+struct ExpiredView: View {
+    @StateObject var viewModel = foodInventoryView()
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+                Text("EXPIRED")
+                    .font(.largeTitle)
+                
+                ForEach(viewModel.foodItems) { item in
+                    if item.daysUntilExpiration < 0 {
+                        HStack {
+                            Text(item.nameOfFood)
+                            Spacer()
+                            Text("\(abs(item.daysUntilExpiration)) days ago")
+                        }
+                        .padding()
+                        .background(Color.red.opacity(0.3))
+                        .cornerRadius(25)
+                        .padding(.horizontal)
+                    }
+                }
+            }
+        }
+    }
+}
