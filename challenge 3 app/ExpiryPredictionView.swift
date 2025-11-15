@@ -7,24 +7,120 @@
 
 import SwiftUI
 import FoundationModels
-struct SwiftUIView: View {
-    var body: some View {
-        Button("Predict Expiration Date"){
-            Task{
-                let instructions = """
-You are a shelf life predictor. I want you to predict how long a food will last in my house based on where I store it (Fridge, Freezer or Pantry), the date I bought it from the supermarket as well as the name of the food.
-You will be given a place (fridge, freezer or pantry), the date the food was bought and the name of the food item. You are to respond with the 
 
-"""
-                let session = LanguageModelSession()
-                let response = try await session.respond(to: "Hello! what is the eretaher")
-                print(response.content)
-                //struct for format
-                //instrcutions go in function
-                //change prompt accordingly
+struct SwiftUIView: View {
+    @StateObject var viewModel = foodInventoryView()
+    @State private var isProcessing = false
+    
+    var body: some View {
+        VStack {
+            if isProcessing {
+                ProgressView("predicting...")
+                    .padding()
+            } else {
+                Button("Predict") {
+                    Task {
+                        isProcessing = true
+                        await predictAllExpirations()
+                        isProcessing = false
+                    }
+                }
+                .padding()
+                .background(Color.pink)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(viewModel.foodItems) { item in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.nameOfFood)
+                                .font(.headline)
+                            Text("location: \(item.storageLocation)")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                            Text("date bought: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                            Text("expires: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal)
             }
         }
     }
+    
+    func predictAllExpirations() async {
+        let session = LanguageModelSession()
+        
+        for item in viewModel.foodItems {
+            do {
+                let prompt = """
+You are a food expiry inspector. Predict the expiration date for the following food item with the highest accuracy possible.
+
+Food Item: \(item.nameOfFood)
+Purchase Date: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))
+Storage Location: \(item.storageLocation)
+
+Instructions:
+- Use USDA guidelines and standard food safety data
+- Consider typical shelf life for \(item.nameOfFood) stored in \(item.storageLocation)
+- Account for the purchase date
+- The expiration date MUST be AFTER the purchase date
+- Be realistic and accurate based on real-world food storage times
+- For unopened items in proper storage conditions
+
+Provide the predicted expiration date.
+"""
+                
+                let response = try await session.respond(to: prompt, generating: Prediction.self)
+                let prediction = response.content
+                
+                if let index = viewModel.foodItems.firstIndex(where: { $0.id == item.id }) {
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                    if let expiryDate = dateFormatter.date(from: prediction.expiryDate),
+                       expiryDate > item.dateScanned {
+                        viewModel.foodItems[index] = FoodItem(
+                            nameOfFood: item.nameOfFood,
+                            dateScanned: item.dateScanned,
+                            dateExpiring: expiryDate,
+                            storageLocation: item.storageLocation
+                        )
+                    }
+                }
+                
+                try await Task.sleep(nanoseconds: 500_000_000)
+                
+            } catch {
+                print("Error predicting for \(item.nameOfFood): \(error)")
+            }
+        }
+    }
+}
+
+@Generable
+struct Prediction {
+    @Guide(description: "The name of the food item")
+    var name: String
+    
+    @Guide(description: "The predicted expiration date in YYYY-MM-DD format based on USDA guidelines and standard shelf life for this specific food in the given storage location")
+    var expiryDate: String
+    
+    @Guide(description: "The date the food was purchased in YYYY-MM-DD format")
+    var dateBought: String
+    
+    @Guide(description: "The storage location where the food is kept (Fridge, Freezer, or Pantry)")
+    var location: String
 }
 
 #Preview {
