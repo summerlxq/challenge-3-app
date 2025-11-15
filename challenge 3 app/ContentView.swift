@@ -18,21 +18,57 @@ struct ContentView: View {
     
     @State private var searchText = ""
     
-    @State private var allFoodItems: [FoodItem] = [FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date())]
+    @State private var allFoodItems: [FoodItem] = [FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date()),FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date()), FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!),FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!)]
     @State private var isInfoShown = false
+    
+    @State private var selectedItem: FoodItem?
+    
+    @State private var isExpiringShown = false
+    
+    @State var numExpiring = 0
+    @State var numExpired = 0
     
     var body: some View {
         NavigationStack {
             VStack {
                 HStack {
-                    NavigationLink ("Expiring") {
+                    NavigationLink {
                         ExpiringView()
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color.red)
+                            Text("\(numExpiring) \n Expiring...")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(1.5, contentMode: .fit)
+                        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    NavigationLink("Expired") {
+                    Spacer()
+                    NavigationLink {
                         ExpiredView()
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color.yellow)
+                            Text("\(numExpired) \n Expired...")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(1.5, contentMode: .fit)
+                        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                 }
-                
+                .padding()
                 List {
                     Picker("Foodtype", selection: $selectedType) {
                         Text("all").tag(Foodtype.all)
@@ -42,22 +78,25 @@ struct ContentView: View {
                     }
                     .pickerStyle(.segmented)
                     
-                    Section {
-                        ForEach(allFoodItems) { allFoodItem in
-                            Button("\(allFoodItem.nameOfFood)") {
-                                isInfoShown = true
+                    Section("this week") {
+                        ForEach(allFoodItems) { item in
+                            Button("\(item.nameOfFood)") {
+                                selectedItem = item
                             }
-                            .sheet(isPresented: $isInfoShown) {
+                            .sheet(item: $selectedItem) { item in
                                 VStack {
-                                    Text("\(allFoodItem.nameOfFood)")
+                                    Text("\(item.nameOfFood)")
                                         .font(.largeTitle)
-                                    Text("Date scanned: \(allFoodItem.dateExpiring)")
+                                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                    Text("Date expiring: \(item .dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                    Text("Days to expiry: \(item.daysUntilExpiration)")
                                 }
                             }
                         }
                     }
                 }
             }
+            .navigationTitle("Home")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     NavigationLink(destination: ScanView()) {
