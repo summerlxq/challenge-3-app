@@ -18,7 +18,12 @@ struct ContentView: View {
     
     @State private var searchText = ""
     
-    @State private var allFoodItems: [FoodItem] = [FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date()),FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date()), FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!),FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!)]
+    @State private var allFoodItems: [FoodItem] = [
+        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
+        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
+        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
+        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
+    ]
     @State private var isInfoShown = false
     
     @State private var selectedItem: FoodItem?
@@ -78,25 +83,80 @@ struct ContentView: View {
                     }
                     .pickerStyle(.segmented)
                     
+                    Section("expired") {
+                        ForEach(allFoodItems) { item in
+                            if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
+                                Button("\(item.nameOfFood)") {
+                                    selectedItem = item
+                                }
+                                .sheet(item: $selectedItem) { item in
+                                    VStack {
+                                        Text("\(item.nameOfFood)")
+                                            .font(.largeTitle)
+                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                    }
+                                }
+                            }
+                        }
+                    }
                     Section("this week") {
                         ForEach(allFoodItems) { item in
-                            Button("\(item.nameOfFood)") {
-                                selectedItem = item
+                            if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
+                                Button("\(item.nameOfFood)") {
+                                    selectedItem = item
+                                }
+                                .sheet(item: $selectedItem) { item in
+                                    VStack {
+                                        Text("\(item.nameOfFood)")
+                                            .font(.largeTitle)
+                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                    }
+                                }
                             }
-                            .sheet(item: $selectedItem) { item in
-                                VStack {
-                                    Text("\(item.nameOfFood)")
-                                        .font(.largeTitle)
-                                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                                    Text("Date expiring: \(item .dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                                    Text("Days to expiry: \(item.daysUntilExpiration)")
+                        }
+                    }
+                    Section("next week") {
+                        ForEach(allFoodItems) { item in
+                            if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
+                                Button("\(item.nameOfFood)") {
+                                    selectedItem = item
+                                }
+                                .sheet(item: $selectedItem) { item in
+                                    VStack {
+                                        Text("\(item.nameOfFood)")
+                                            .font(.largeTitle)
+                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Section("later") {
+                        ForEach(allFoodItems) { item in
+                            if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
+                                Button("\(item.nameOfFood)") {
+                                    selectedItem = item
+                                }
+                                .sheet(item: $selectedItem) { item in
+                                    VStack {
+                                        Text("\(item.nameOfFood)")
+                                            .font(.largeTitle)
+                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("Home")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     NavigationLink(destination: ScanView()) {
@@ -105,6 +165,8 @@ struct ContentView: View {
                     .font(.largeTitle)
                 }
             }
+            .navigationTitle("Home")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .searchable(text: $searchText)
     }
@@ -113,3 +175,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+

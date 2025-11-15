@@ -14,14 +14,14 @@ class foodInventoryView: ObservableObject {
     
     init() {
         foodItems = [
-            FoodItem(nameOfFood: "bread", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(7*24*60*60)),
-            FoodItem(nameOfFood: "tequila", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(365*24*60*60)),
-            FoodItem(nameOfFood: "seaweed", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(30*24*60*60)),
-            FoodItem(nameOfFood: "syrup", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(180*24*60*60)),
-            FoodItem(nameOfFood: "buldak", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(90*24*60*60)),
-            FoodItem(nameOfFood: "guava", dateScanned: Date().addingTimeInterval(-7*24*60*60), dateExpiring: Date().addingTimeInterval(-3*24*60*60)),
-            FoodItem(nameOfFood: "cheesewheel", dateScanned: Date().addingTimeInterval(-10*24*60*60), dateExpiring: Date().addingTimeInterval(-5*24*60*60)),
-            FoodItem(nameOfFood: "lotus root", dateScanned: Date().addingTimeInterval(-15*24*60*60), dateExpiring: Date().addingTimeInterval(-10*24*60*60))
+            FoodItem(nameOfFood: "bread", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(7*24*60*60), storageLocation: .freezer),
+            FoodItem(nameOfFood: "tequila", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(365*24*60*60), storageLocation: .pantry),
+            FoodItem(nameOfFood: "seaweed", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(30*24*60*60), storageLocation: .pantry),
+            FoodItem(nameOfFood: "syrup", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(180*24*60*60), storageLocation: .fridge),
+            FoodItem(nameOfFood: "buldak", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(90*24*60*60), storageLocation: .pantry),
+            FoodItem(nameOfFood: "guava", dateScanned: Date().addingTimeInterval(-7*24*60*60), dateExpiring: Date().addingTimeInterval(-3*24*60*60), storageLocation: .pantry),
+            FoodItem(nameOfFood: "cheesewheel", dateScanned: Date().addingTimeInterval(-10*24*60*60), dateExpiring: Date().addingTimeInterval(-5*24*60*60), storageLocation: .fridge),
+            FoodItem(nameOfFood: "lotus root", dateScanned: Date().addingTimeInterval(-15*24*60*60), dateExpiring: Date().addingTimeInterval(-10*24*60*60), storageLocation: .fridge)
         ]
     }
 }

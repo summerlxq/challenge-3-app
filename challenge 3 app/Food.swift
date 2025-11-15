@@ -13,7 +13,7 @@ struct FoodItem: Identifiable {
     let dateScanned: Date
     let dateExpiring: Date
     let quantity: Int = 1
-    let storageLocation: String = "Pantry"
+    let storageLocation: Foodtype
     
     var daysUntilExpiration: Int {
         let days = Calendar.current.dateComponents([.day], from: Date(), to: dateExpiring).day ?? 0

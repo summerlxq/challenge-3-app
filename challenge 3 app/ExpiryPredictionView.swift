@@ -102,7 +102,7 @@ Provide the predicted expiration date.
                         viewModel.foodItems[index] = FoodItem(
                             nameOfFood: item.nameOfFood,
                             dateScanned: item.dateScanned,
-                            dateExpiring: expiryDate
+                            dateExpiring: expiryDate, storageLocation: .freezer
                         )
                     }
                 }
