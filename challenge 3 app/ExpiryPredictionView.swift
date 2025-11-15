@@ -12,13 +12,17 @@ struct SwiftUIView: View {
     @StateObject var viewModel = foodInventoryView()
     @State private var isProcessing = false
     
+    private var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     var body: some View {
         VStack {
             if isProcessing {
                 ProgressView("predicting...")
                     .padding()
             } else {
-                Button("Predict") {
+                Button("predict") {
                     Task {
                         isProcessing = true
                         await predictAllExpirations()
@@ -40,9 +44,9 @@ struct SwiftUIView: View {
                             Text("location: \(item.storageLocation)")
                                 .font(.caption)
                                 .foregroundColor(.black)
-                            Text("date bought: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                            Text("bought: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
-                                .foregroundColor(.black)
+                                .foregroundColor(.gray)
                             Text("expires: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.subheadline)
                                 .foregroundColor(.red)
@@ -60,12 +64,17 @@ struct SwiftUIView: View {
     }
     
     func predictAllExpirations() async {
+        if isPreview {
+            print("Preview detected — skipping LanguageModelSession to avoid preview crash")
+            return
+        }
+        
         let session = LanguageModelSession()
         
         for item in viewModel.foodItems {
             do {
                 let prompt = """
-You are a food expiry inspector. Predict the expiration date for the following food item with the highest accuracy possible.
+You are a food safety expert. Predict the expiration date for the following food item with high accuracy.
 
 Food Item: \(item.nameOfFood)
 Purchase Date: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))
@@ -93,8 +102,7 @@ Provide the predicted expiration date.
                         viewModel.foodItems[index] = FoodItem(
                             nameOfFood: item.nameOfFood,
                             dateScanned: item.dateScanned,
-                            dateExpiring: expiryDate,
-                            storageLocation: item.storageLocation
+                            dateExpiring: expiryDate
                         )
                     }
                 }

@@ -18,7 +18,7 @@ struct ContentView: View {
     
     @State private var searchText = ""
     
-    @State private var allFoodItems: [FoodItem] = [FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: "Fridge")]
+    @State private var allFoodItems: [FoodItem] = [FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date())]
     @State private var isInfoShown = false
     
     var body: some View {
