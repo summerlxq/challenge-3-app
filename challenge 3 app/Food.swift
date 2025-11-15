@@ -4,7 +4,7 @@
 //
 //  Created by Ashley Leng on 7/11/25.
 //
-
+import SwiftUI
 import Foundation
 
 struct FoodItem: Identifiable {
@@ -13,6 +13,7 @@ struct FoodItem: Identifiable {
     let dateScanned: Date
     let dateExpiring: Date
     let quantity: Int = 1
+    let storageLocation: String = "Pantry"
     
     var daysUntilExpiration: Int {
         let days = Calendar.current.dateComponents([.day], from: Date(), to: dateExpiring).day ?? 0

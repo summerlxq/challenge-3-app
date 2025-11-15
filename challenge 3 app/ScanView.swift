@@ -2,9 +2,8 @@
 import SwiftUI
 import PhotosUI
 import Vision
-import DataDetection
+import VisionKit
 
-//VIEW + UI
 struct ScanView: View{
     @State private var selectedItem: PhotosPickerItem? // holds the selected photo
     @State private var selectedImage: UIImage? //holds the loaded image
@@ -35,6 +34,7 @@ struct ScanView: View{
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(25)
+                    .padding(.horizontal)
             }
             .sheet(isPresented: $showingCamera){
                 CameraView(image: $selectedImage)
@@ -52,22 +52,25 @@ struct ScanView: View{
                     .background(Color.purple)
                     .foregroundColor(.white)
                     .cornerRadius(25)
+                    .padding(.horizontal)
             }
-            .onChange(of:selectedItem){ newItem in
-                if let newItem = newItem{
-                    Task{
-                        if let data = try? await newItem.loadTransferable(type: Data.self), let image = UIImage(data: data){
+            .onChange(of: selectedItem) { _, newItem in
+                if let newItem = newItem {
+                    Task {
+                        if let data = try? await newItem.loadTransferable(type: Data.self), let image = UIImage(data: data) {
                             selectedImage = image // update the selected image
                         }
                     }
                 }
-                
             }
         }
-        .task{
-            if selectedImage != nil{
-                await viewModel.recognizeTable(in: (selectedImage?.pngData())!)
-                
+        .onChange(of: selectedImage) { _, newImage in
+            if let newImage = newImage, let imageData = newImage.pngData() {
+                Task {
+                    await viewModel.recognizeTable(in: imageData)
+                    print("done")
+                    print(viewModel.table)
+                }
             }
         }
     }
@@ -78,69 +81,110 @@ struct ScanView: View{
 
 //IDK WHAT I'M DOING HERE BUT IT'S NECESSARY SOMEHOW
 
+@Observable
 class VisionModel{
     //ERROR CASES
     enum AppError: Error{
         case noDocument
         case noTable
         case invalidPoint
+        case recognitionFailed
     }
-    var table: DocumentObservation.Container.Table? = nil
+    var table: [[String]] = []
     var foods = [Food]()
     
-    func recognizeTable(in image: Data) async {
+    func recognizeTable(in imageData: Data) async {
         resetState()
         do{
-            let table = try await extractTable(from: image)
-            self.table = table
-            self.foods = parseTable(table)
+            let extractedTable = try await extractTable(from: imageData)
+            
+            print(extractedTable)
+            print("Hello")
+            
+            self.table = extractedTable
+            self.foods = parseTable(extractedTable)
         }catch{
-            print(error)
+            print("Error recognizing table: \(error)")
         }
     }
     func resetState(){
-        self.table = nil
+        self.table = []
         self.foods = []
         
     }
     //EXTRACTING TABLE FROM IMAGE
 
-    func extractTable(from image: Data) async throws -> DocumentObservation.Container.Table {
-        
-        // The Vision request.
-        let request = RecognizeDocumentsRequest()
-        
-        // Perform the request on the image data and return the results.
-        let observations = try await request.perform(on: image)
-
-        // Get the first observation from the array.
-        guard let document = observations.first?.document else {
+    func extractTable(from imageData: Data) async throws -> [[String]] {
+        guard let cgImage = UIImage(data: imageData)?.cgImage else {
             throw AppError.noDocument
         }
         
-        // Extract the first table detected.
-        guard let table = document.tables.first else {
+        // The Vision request for text recognition
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        
+        // Perform the request
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try handler.perform([request])
+        
+        // Get the recognized text observations
+        guard let observations = request.results, !observations.isEmpty else {
             throw AppError.noTable
         }
         
-        return table
+        // Group text by approximate rows (by Y coordinate)
+        var rows: [[String]] = []
+        var currentRow: [(text: String, y: CGFloat)] = []
+        var lastY: CGFloat = -1
+        let rowThreshold: CGFloat = 0.05 // Adjust this value based on your needs
+        
+        for observation in observations {
+            guard let topCandidate = observation.topCandidates(1).first else { continue }
+            let text = topCandidate.string
+            let boundingBox = observation.boundingBox
+            let y = boundingBox.origin.y
+            
+            // Check if this is a new row
+            if lastY >= 0 && abs(y - lastY) > rowThreshold {
+                // Save the current row and start a new one
+                if !currentRow.isEmpty {
+                    rows.append(currentRow.sorted { $0.y > $1.y }.map { $0.text })
+                    currentRow = []
+                }
+            }
+            
+            currentRow.append((text, y))
+            lastY = y
+        }
+        
+        // Add the last row
+        if !currentRow.isEmpty {
+            rows.append(currentRow.sorted { $0.y > $1.y }.map { $0.text })
+        }
+        
+        // Sort rows by Y coordinate (top to bottom)
+        rows.sort { row1, row2 in
+            guard let first1 = row1.first, let first2 = row2.first else { return false }
+            return first1 > first2
+        }
+        
+        return rows
     }
 
     //PROCESSING TABLE FROM IMAGE
-    private func parseTable(_ table: DocumentObservation.Container.Table) -> [Food] {
-            var foods = [Food]()
+    private func parseTable(_ table: [[String]]) -> [Food] {
+        var foods = [Food]()
+        
+        for row in table {
+            guard let firstCell = row.first, !firstCell.isEmpty else { continue }
             
-            for row in table.rows {
-                guard let firstCell = row.first else { continue }
-                
-                let name = firstCell.content.text.transcript
-                
-                // Create Food object with just the name
-                foods.append(Food(name: name))
-            }
-            
-            return foods
+            // Create Food object with just the name
+            foods.append(Food(name: firstCell))
         }
+        
+        return foods
+    }
 
 
 }

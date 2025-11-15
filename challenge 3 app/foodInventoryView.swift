@@ -6,22 +6,22 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
-internal import Combine
 
 class foodInventoryView: ObservableObject {
     @Published var foodItems: [FoodItem] = []
     
     init() {
         foodItems = [
-            FoodItem(nameOfFood: "bred", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(4*24*60*60)),
-            FoodItem(nameOfFood: "tequila", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(4*24*60*60)),
-            FoodItem(nameOfFood: "seaweed", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(4*24*60*60)),
-            FoodItem(nameOfFood: "syrup", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(4*24*60*60)),
-            FoodItem(nameOfFood: "buldak", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(2*24*60*60)),
-            FoodItem(nameOfFood: "guava", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(-3*24*60*60)),
-            FoodItem(nameOfFood: "cheesewheel", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(-5*24*60*60)),
-            FoodItem(nameOfFood: "you", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(-10*24*60*60))
+            FoodItem(nameOfFood: "bread", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(7*24*60*60)),
+            FoodItem(nameOfFood: "tequila", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(365*24*60*60)),
+            FoodItem(nameOfFood: "seaweed", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(30*24*60*60)),
+            FoodItem(nameOfFood: "syrup", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(180*24*60*60)),
+            FoodItem(nameOfFood: "buldak", dateScanned: Date(), dateExpiring: Date().addingTimeInterval(90*24*60*60)),
+            FoodItem(nameOfFood: "guava", dateScanned: Date().addingTimeInterval(-7*24*60*60), dateExpiring: Date().addingTimeInterval(-3*24*60*60)),
+            FoodItem(nameOfFood: "cheesewheel", dateScanned: Date().addingTimeInterval(-10*24*60*60), dateExpiring: Date().addingTimeInterval(-5*24*60*60)),
+            FoodItem(nameOfFood: "lotus root", dateScanned: Date().addingTimeInterval(-15*24*60*60), dateExpiring: Date().addingTimeInterval(-10*24*60*60))
         ]
     }
 }
