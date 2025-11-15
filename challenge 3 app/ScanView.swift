@@ -68,6 +68,8 @@ struct ScanView: View{
             if let newImage = newImage, let imageData = newImage.pngData() {
                 Task {
                     await viewModel.recognizeTable(in: imageData)
+                    print("done")
+                    print(viewModel.table)
                 }
             }
         }
@@ -95,6 +97,10 @@ class VisionModel{
         resetState()
         do{
             let extractedTable = try await extractTable(from: imageData)
+            
+            print(extractedTable)
+            print("Hello")
+            
             self.table = extractedTable
             self.foods = parseTable(extractedTable)
         }catch{
