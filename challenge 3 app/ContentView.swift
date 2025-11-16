@@ -14,24 +14,24 @@ enum Foodtype: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     
+    @EnvironmentObject var viewModel: foodInventoryView
+    
     @State private var selectedType: Foodtype = .all
     
     @State private var searchText = ""
     
-    @State private var allFoodItems: [FoodItem] = [
-        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
-        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
-        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
-        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
-    ]
     @State private var isInfoShown = false
     
     @State private var selectedItem: FoodItem?
     
     @State private var isExpiringShown = false
     
-    @State var numExpiring = 0
-    @State var numExpired = 0
+    var numExpiring: Int {
+        viewModel.foodItems.filter { $0.daysUntilExpiration >= 0 && $0.daysUntilExpiration <= 5 }.count
+    }
+    var numExpired: Int {
+        viewModel.foodItems.filter { $0.daysUntilExpiration < 0 }.count
+    }
     
     var body: some View {
         NavigationStack {
@@ -42,7 +42,7 @@ struct ContentView: View {
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color.red)
+                                .fill(Color.yellow)
                             Text("\(numExpiring) \n Expiring...")
                                 .font(.title)
                                 .fontWeight(.bold)
@@ -60,7 +60,7 @@ struct ContentView: View {
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color.yellow)
+                                .fill(Color.red)
                             Text("\(numExpired) \n Expired...")
                                 .font(.title)
                                 .fontWeight(.bold)
@@ -84,7 +84,7 @@ struct ContentView: View {
                     .pickerStyle(.segmented)
                     
                     Section("expired") {
-                        ForEach(allFoodItems) { item in
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -102,7 +102,7 @@ struct ContentView: View {
                         }
                     }
                     Section("this week") {
-                        ForEach(allFoodItems) { item in
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -120,7 +120,7 @@ struct ContentView: View {
                         }
                     }
                     Section("next week") {
-                        ForEach(allFoodItems) { item in
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -137,8 +137,8 @@ struct ContentView: View {
                             }
                         }
                     }
-                    Section("later") {
-                        ForEach(allFoodItems) { item in
+                    Section("future") {
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -174,5 +174,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(foodInventoryView())
 }
-

@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct challenge_3_appApp: App {
+    @StateObject private var inventory = foodInventoryView()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(inventory)
         }
     }
 }
