@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ExpiringView: View {
-    @StateObject var viewModel = foodInventoryView()
+    @EnvironmentObject var viewModel: foodInventoryView
     
     var body: some View {
         ScrollView {
@@ -32,4 +32,9 @@ struct ExpiringView: View {
             }
         }
     }
+}
+
+#Preview {
+    ExpiringView()
+        .environmentObject(foodInventoryView())
 }

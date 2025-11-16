@@ -9,7 +9,7 @@ import SwiftUI
 import FoundationModels
 
 struct SwiftUIView: View {
-    @StateObject var viewModel = foodInventoryView()
+    @EnvironmentObject var viewModel: foodInventoryView
     @State private var isProcessing = false
     
     private var isPreview: Bool {
@@ -41,7 +41,7 @@ struct SwiftUIView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(item.nameOfFood)
                                 .font(.headline)
-                            Text("location: \(item.storageLocation)")
+                            Text("location: \(String(describing: item.storageLocation))")
                                 .font(.caption)
                                 .foregroundColor(.black)
                             Text("bought: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
@@ -102,7 +102,8 @@ Provide the predicted expiration date.
                         viewModel.foodItems[index] = FoodItem(
                             nameOfFood: item.nameOfFood,
                             dateScanned: item.dateScanned,
-                            dateExpiring: expiryDate
+                            dateExpiring: expiryDate, 
+                            storageLocation: item.storageLocation
                         )
                     }
                 }
@@ -133,4 +134,5 @@ struct Prediction {
 
 #Preview {
     SwiftUIView()
+        .environmentObject(foodInventoryView())
 }
