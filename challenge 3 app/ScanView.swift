@@ -9,6 +9,7 @@ struct ScanView: View{
     @State private var selectedImage: UIImage? //holds the loaded image
     @State private var showingCamera = false //control camera sheet visibility
     @State private var viewModel = VisionModel()
+    @StateObject var cropVM = CropModel()
     @State private var navigate = false
     var body: some View{
         
@@ -40,7 +41,21 @@ struct ScanView: View{
                     .padding(.horizontal)
             }
             .sheet(isPresented: $showingCamera){
-                CameraView(image: $selectedImage)
+                CameraView(didFinishWith: { result in
+                    switch result{
+                    case .success(let images):
+                        cropVM.scannedPages = images
+                    case .failure(let error):
+                        print("Scan failed: \(error.localizedDescription)")
+                    }
+                    showingCamera = false
+            
+                    
+                }, didCancel:{
+                    showingCamera = false
+
+                }
+            )
             }
             .sheet(isPresented: $navigate){
                 IngredientView()
@@ -173,7 +188,9 @@ struct Food{
 // Ingredients display view
 struct IngredientView: View{
     @Environment(VisionModel.self) var viewModel
+    
     var body: some View{
         Text(viewModel.foods.description)
+        
     }
 }
