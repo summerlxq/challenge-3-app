@@ -11,10 +11,12 @@ enum Foodtype: String, CaseIterable, Identifiable {
     case all, pantry, fridge, freezer
     var id: Self { self }
 }
+// enum for picker selection
 
 struct ContentView: View {
     
     @State private var selectedType: Foodtype = .all
+    // variable of picker
     
     @State private var searchText = ""
     
@@ -23,15 +25,15 @@ struct ContentView: View {
         FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
         FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
         FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
-    ]
+    ] // subjects all food items to custom data type FoodItem
+    
     @State private var isInfoShown = false
+    // default modal sheet information
     
     @State private var selectedItem: FoodItem?
     
-    @State private var isExpiringShown = false
-    
-    @State var numExpiring = 0
-    @State var numExpired = 0
+    @State var numExpiring = 0 // number of expiring foods
+    @State var numExpired = 0 // number of expired foods
     
     var body: some View {
         NavigationStack {
@@ -50,8 +52,8 @@ struct ContentView: View {
                                 .padding(.horizontal, 3)
                                 .padding(.vertical, 3)
                         }
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(1.5, contentMode: .fit)
+                        .frame(maxWidth: .infinity) // takes up as much space as it can
+                        .aspectRatio(1.5, contentMode: .fit) // ratio of width to height
                         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     Spacer()
@@ -68,14 +70,15 @@ struct ContentView: View {
                                 .padding(.horizontal, 3)
                                 .padding(.vertical, 3)
                         }
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(1.5, contentMode: .fit)
+                        .frame(maxWidth: .infinity) // takes up as much space as it can
+                        .aspectRatio(1.5, contentMode: .fit) // ratio of width to height
                         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                 }
                 .padding()
-                List {
+                List { // creates a continuous list of items
                     Picker("Foodtype", selection: $selectedType) {
+                        // selection of picker from Foodtype
                         Text("all").tag(Foodtype.all)
                         Text("pantry").tag(Foodtype.pantry)
                         Text("fridge").tag(Foodtype.fridge)
@@ -84,6 +87,7 @@ struct ContentView: View {
                     .pickerStyle(.segmented)
                     
                     Section("expired") {
+                        // separates picker from items below
                         ForEach(allFoodItems) { item in
                             if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
