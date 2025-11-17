@@ -171,6 +171,19 @@ class VisionModel{
         
         return foods
     }
+    func addFood(name: String){
+        foods.append(Food(name: name))
+    }
+    func deleteFoods(at offsets: IndexSet){
+        foods.remove(atOffsets: offsets)
+    }
+    func moveFoods(from source: IndexSet, to destination: Int){
+        foods.move(fromOffsets: source, toOffset: destination )
+    }
+    func updateFoodName(at index: Int, to newName: String){
+        guard foods.indices.contains(index) else{return}
+        foods[index].name = newName
+    }
 
 
 }
@@ -179,8 +192,9 @@ class VisionModel{
 
 
 //VALUES OF TABLE TO BE STORED
-struct Food{
-    let name: String
+struct Food: Identifiable {
+    let id: UUID = UUID()
+    var name: String
 }
 #Preview {
     ScanView()
@@ -191,9 +205,45 @@ struct IngredientView: View{
     @Environment(VisionModel.self) var viewModel
     
     var body: some View{
-        List(viewModel.foods, id: \.name){food in
-            Text(food.name)
-        }
         
+        @Bindable var viewModel = viewModel
+        NavigationStack{
+            VStack{
+                Text("Edit the names of the foods and delete non-food items")
+                List{
+                    ForEach($viewModel.foods){ $food in
+                        TextField("Name", text: $food.name)
+                    }
+                    .onDelete{ indexSet in
+                        viewModel.deleteFoods(at: indexSet)
+                    }
+                    .onMove{ indices, newOffset in
+                        viewModel.moveFoods(from: indices, to: newOffset)
+                    }
+                    
+                }
+            }
+            .padding(.vertical, 8)
+            .navigationTitle("Confirm Foods")
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading){
+                    EditButton()
+                }
+                ToolbarItem(placement: .topBarTrailing){
+                    Button{
+                        viewModel.addFood(name: "New Food")
+                    }label:{
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add ingredient")
+                }
+            }
+        }
     }
+    
 }
+        
+//        List(viewModel.foods, id: \.name){food in
+//            Text(food.name)
+//        }
+        
