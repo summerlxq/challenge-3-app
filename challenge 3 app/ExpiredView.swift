@@ -5,19 +5,24 @@
 //  Created by Ashley Leng on 7/11/25.
 //
 
-import SwiftUI
+    import SwiftUI
 
-struct ExpiredView: View {
-    @EnvironmentObject var viewModel: foodInventoryView
-    
-    var body: some View {
-        ScrollView {
-            VStack {
-                Text("EXPIRED")
-                    .font(.largeTitle)
-                
-                ForEach(viewModel.foodItems) { item in
-                    if item.daysUntilExpiration < 0 {
+    struct ExpiredView: View {
+        @EnvironmentObject var viewModel: foodInventoryView
+        
+        var sortedExpiredItems: [FoodItem] {
+            viewModel.foodItems
+                .filter { $0.daysUntilExpiration < 0 }
+                .sorted { $0.daysUntilExpiration > $1.daysUntilExpiration }
+        }
+        
+        var body: some View {
+            ScrollView {
+                VStack {
+                    Text("EXPIRED")
+                        .font(.largeTitle)
+                    
+                    ForEach(sortedExpiredItems) { item in
                         HStack {
                             Text(item.nameOfFood)
                             Spacer()
@@ -32,9 +37,8 @@ struct ExpiredView: View {
             }
         }
     }
-}
 
-#Preview {
-    ExpiredView()
-        .environmentObject(foodInventoryView())
-}
+    #Preview {
+        ExpiredView()
+            .environmentObject(foodInventoryView())
+    }

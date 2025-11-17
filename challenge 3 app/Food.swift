@@ -4,19 +4,19 @@
 //
 //  Created by Ashley Leng on 7/11/25.
 //
-import SwiftUI
-import Foundation
+    import SwiftUI
+    import Foundation
 
-struct FoodItem: Identifiable {
-    let id = UUID()
-    let nameOfFood: String
-    let dateScanned: Date
-    let dateExpiring: Date
-    let quantity: Int = 1
-    let storageLocation: Foodtype
-    
-    var daysUntilExpiration: Int {
-        let days = Calendar.current.dateComponents([.day], from: Date(), to: dateExpiring).day ?? 0
-        return days
+    struct FoodItem: Identifiable {
+        let id = UUID()
+        let nameOfFood: String
+        let dateScanned: Date
+        let dateExpiring: Date
+        let quantity: Int = 1
+        let storageLocation: Foodtype
+        
+        var daysUntilExpiration: Int {
+            let days = Calendar.current.dateComponents([.day], from: Date(), to: dateExpiring).day ?? 0
+            return days
+        }
     }
-}
