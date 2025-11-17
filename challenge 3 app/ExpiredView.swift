@@ -6,13 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
-struct ExpiredView: View {
-    @Environment(FoodInventoryView.self) var viewModel
-    
+struct ExpiredView: View {    
     var numOfExpired: Int {
         var expiredCount = 0
-        for item in viewModel.foodItems {
+        for item in foodItems {
             if item.daysUntilExpiration < 0 {
                 expiredCount += 1
             }
@@ -21,11 +20,12 @@ struct ExpiredView: View {
     }
     
     var sortedExpiredItems: [FoodItem] {
-        viewModel.foodItems
+        foodItems
             .filter { $0.daysUntilExpiration < 0 }
             .sorted { $0.daysUntilExpiration > $1.daysUntilExpiration }
     }
     
+    @Query var foodItems: [FoodItem]
     
     var body: some View {
         ScrollView {
@@ -33,7 +33,7 @@ struct ExpiredView: View {
                 Text("EXPIRED")
                     .font(.largeTitle)
                 
-                ForEach(viewModel.foodItems) { item in
+                ForEach(foodItems) { item in
                     if item.daysUntilExpiration < 0 {
                         HStack {
                             Text(item.nameOfFood)

@@ -17,35 +17,31 @@ enum Foodtype: String, CaseIterable, Identifiable, Codable {
 struct ContentView: View {
     
     @Environment(\.modelContext) var modelContext
-    @Query var allFoodItems: [FoodItem]
-    @State private var selectedType: Foodtype = .all
-    
-    func removeRows(at offsets: IndexSet) {
-        for index in offsets {
-            allFoodItems[index].isDeleted = true
-        }
-    }
-    // remove rows in list when function is called
-    
-    // variable of picker
-    @State var viewModel = FoodInventoryView()
-    @State private var searchText = ""
-    
-//    @State private var allFoodItems: [FoodItem] = [
-//        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
-//        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
-//        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
-//        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
-//    ] // subjects all food items to custom data type FoodItem
-    
-    @State private var isInfoShown = false
-    // default modal sheet information
+    @Query var foodItems: [FoodItem]
     
     @State private var selectedItem: FoodItem?
+    //select each item from FoodItem
+    
+    @State private var selectedType: Foodtype = .all
+    // selects from Foodtype (location)
+    
+    
+    @State private var searchText = ""
+    
+    //    @State private var allFoodItems: [FoodItem] = [
+    //        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
+    //        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
+    //        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
+    //        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
+    //    ] // subjects all food items to custom data type FoodItem
+    
+    @State private var isInfoShown = false
+    // modal sheet boolean
+    
     
     var numOfExpiring: Int {
         var expiringCount = 0
-        for item in viewModel.foodItems {
+        for item in foodItems {
             if item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5 {
                 expiringCount += 1
             }
@@ -55,7 +51,7 @@ struct ContentView: View {
     
     var numOfExpired: Int {
         var expiredCount = 0
-        for item in viewModel.foodItems {
+        for item in foodItems {
             if item.daysUntilExpiration < 0 {
                 expiredCount += 1
             }
@@ -116,78 +112,74 @@ struct ContentView: View {
                     
                     Section("expired") {
                         // separates picker from items below
-                        ForEach(allFoodItems.filter { !$0.isDeleted
-                        }) { item in
+                        ForEach(foodItems) { item in
                             if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
                                 }
-                                .sheet(item: $selectedItem) { item in
-                                    VStack {
-                                        Text("\(item.nameOfFood)")
-                                            .font(.largeTitle)
-                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                .swipeActions {
+                                    Button("Delete") {
+                                        modelContext.delete(item)
                                     }
+                                    .tint(.red)
                                 }
                             }
                         }
-                        .onDelete(perform: removeRows)
                     }
                     Section("this week") {
-                        ForEach(viewModel.foodItems) { item in
+                        ForEach(foodItems) { item in
                             if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
                                 }
-                                .sheet(item: $selectedItem) { item in
-                                    VStack {
-                                        Text("\(item.nameOfFood)")
-                                            .font(.largeTitle)
-                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                .swipeActions {
+                                    Button("Delete") {
+                                        modelContext.delete(item)
                                     }
+                                    .tint(.red)
                                 }
                             }
+                            
                         }
                     }
                     Section("next week") {
-                        ForEach(viewModel.foodItems) { item in
+                        ForEach(foodItems) { item in
                             if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
                                 }
-                                .sheet(item: $selectedItem) { item in
-                                    VStack {
-                                        Text("\(item.nameOfFood)")
-                                            .font(.largeTitle)
-                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                .swipeActions {
+                                    Button("Delete") {
+                                        modelContext.delete(item)
                                     }
+                                    .tint(.red)
                                 }
                             }
                         }
                     }
                     Section("future") {
-                        ForEach(viewModel.foodItems) { item in
+                        ForEach(foodItems) { item in
                             if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
                                 }
-                                .sheet(item: $selectedItem) { item in
-                                    VStack {
-                                        Text("\(item.nameOfFood)")
-                                            .font(.largeTitle)
-                                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                                        Text("Days to expiry: \(item.daysUntilExpiration)")
+                                .swipeActions {
+                                    Button("Delete") {
+                                        modelContext.delete(item)
                                     }
+                                    .tint(.red)
                                 }
                             }
                         }
+                    }
+                }
+                .sheet(item: $selectedItem) { item in
+                    VStack {
+                        Text("\(item.nameOfFood)")
+                            .font(.largeTitle)
+                        Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+                        Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                        Text("Days to expiry: \(item.daysUntilExpiration)")
                     }
                 }
             }
@@ -203,10 +195,10 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .searchable(text: $searchText)
-        .environment(viewModel)
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for:FoodItem.self)
 }

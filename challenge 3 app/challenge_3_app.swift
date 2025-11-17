@@ -10,13 +10,10 @@ import SwiftData
 
 @main
 struct challenge_3_app: App {
-    @State private var inventory = FoodInventoryView()
-    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(inventory)
         }
-        .modelContainer(for:FoodItem.self)
+        .modelContainer(for: FoodItem.self)
     }
 }

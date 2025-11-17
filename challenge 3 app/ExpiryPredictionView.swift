@@ -7,9 +7,11 @@
 
 import SwiftUI
 import FoundationModels
+import SwiftData
 
 struct SwiftUIView: View {
-    @State var viewModel = FoodInventoryView()
+    @Environment(\.modelContext) var modelContext
+    @Query var foodItems: [FoodItem]
     @State private var isProcessing = false
     
     private var isPreview: Bool {
@@ -36,7 +38,7 @@ struct SwiftUIView: View {
                 
                 ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(viewModel.foodItems) { item in
+                        ForEach(foodItems) { item in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(item.nameOfFood)
                                     .font(.headline)
@@ -71,7 +73,7 @@ struct SwiftUIView: View {
         
         let session = LanguageModelSession()
         
-        for item in viewModel.foodItems {
+        for item in foodItems {
             do {
                 let prompt = """
     You are a food safety expert. Predict the expiration date for the following food item with high accuracy.
@@ -94,17 +96,17 @@ struct SwiftUIView: View {
                 let response = try await session.respond(to: prompt, generating: Prediction.self)
                 let prediction = response.content
                 
-                if let index = viewModel.foodItems.firstIndex(where: { $0.id == item.id }) {
+                if let index = foodItems.firstIndex(where: { $0.id == item.id }) {
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd"
                     if let expiryDate = dateFormatter.date(from: prediction.expiryDate),
                        expiryDate > item.dateScanned {
-                        viewModel.foodItems[index] = FoodItem(
+                        modelContext.insert(FoodItem(
                             nameOfFood: item.nameOfFood,
                             dateScanned: item.dateScanned,
                             dateExpiring: expiryDate,
                             storageLocation: item.storageLocation
-                        )
+                        ))
                     }
                 }
                 
