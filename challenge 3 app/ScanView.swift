@@ -225,6 +225,7 @@ struct IngredientView: View{
             }
             .padding(.vertical, 8)
             .navigationTitle("Confirm Foods")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 ToolbarItem(placement: .topBarLeading){
                     EditButton()
