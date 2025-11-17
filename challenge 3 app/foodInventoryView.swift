@@ -8,9 +8,11 @@
 import Foundation
 import Combine
 import SwiftUI
+import Observation
 
-class foodInventoryView: ObservableObject {
-    @Published var foodItems: [FoodItem] = []
+@Observable
+class foodInventoryView {
+    var foodItems: [FoodItem] = []
     
     init() {
         foodItems = [

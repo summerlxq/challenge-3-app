@@ -9,7 +9,7 @@ import SwiftUI
 import FoundationModels
 
 struct SwiftUIView: View {
-    @StateObject var viewModel = foodInventoryView()
+    @State var viewModel = foodInventoryView()
     @State private var isProcessing = false
     
     private var isPreview: Bool {

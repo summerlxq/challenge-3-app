@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import SwiftData
 
-enum Foodtype: String, CaseIterable, Identifiable {
+enum Foodtype: String, CaseIterable, Identifiable, Codable {
     case all, pantry, fridge, freezer
     var id: Self { self }
 }
@@ -15,25 +16,52 @@ enum Foodtype: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     
+    @Environment(\.modelContext) var modelContext
+    @Query var allFoodItems: [FoodItem]
+    
+    func removeRows(at offsets: IndexSet) {
+        for index in offsets {
+            allFoodItems[index].isDeleted = true
+        }
+    }
+    // remove rows in list when function is called
+    
     @State private var selectedType: Foodtype = .all
     // variable of picker
-    
+    @State var viewModel = foodInventoryView()
     @State private var searchText = ""
     
-    @State private var allFoodItems: [FoodItem] = [
-        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
-        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
-        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
-        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
-    ] // subjects all food items to custom data type FoodItem
+//    @State private var allFoodItems: [FoodItem] = [
+//        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
+//        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
+//        FoodItem(nameOfFood: "cactus", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 3))!, storageLocation: .pantry),
+//        FoodItem(nameOfFood: "ice cream", dateScanned: Date(), dateExpiring: Calendar.current.date(from: DateComponents(year: 2025, month: 11, day: 27))!, storageLocation: .freezer)
+//    ] // subjects all food items to custom data type FoodItem
     
     @State private var isInfoShown = false
     // default modal sheet information
     
     @State private var selectedItem: FoodItem?
     
-    @State var numExpiring = 0 // number of expiring foods
-    @State var numExpired = 0 // number of expired foods
+    var numOfExpiring: Int {
+        var expiringCount = 0
+        for item in viewModel.foodItems {
+            if item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5 {
+                expiringCount += 1
+            }
+        }
+        return expiringCount
+    }
+    
+    var numOfExpired: Int {
+        var expiredCount = 0
+        for item in viewModel.foodItems {
+            if item.daysUntilExpiration < 0 {
+                expiredCount += 1
+            }
+        }
+        return expiredCount
+    }
     
     var body: some View {
         NavigationStack {
@@ -44,8 +72,8 @@ struct ContentView: View {
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color.red)
-                            Text("\(numExpiring) \n Expiring...")
+                                .fill(Color.yellow)
+                            Text("\(numOfExpiring) \n Expiring...")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.black)
@@ -62,8 +90,8 @@ struct ContentView: View {
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color.yellow)
-                            Text("\(numExpired) \n Expired...")
+                                .fill(Color.red)
+                            Text("\(numOfExpired) \n Expired...")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.black)
@@ -88,7 +116,8 @@ struct ContentView: View {
                     
                     Section("expired") {
                         // separates picker from items below
-                        ForEach(allFoodItems) { item in
+                        ForEach(allFoodItems.filter { !$0.isDeleted
+                        }) { item in
                             if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -104,6 +133,7 @@ struct ContentView: View {
                                 }
                             }
                         }
+                        .onDelete(perform: removeRows)
                     }
                     Section("this week") {
                         ForEach(allFoodItems) { item in
@@ -173,6 +203,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .searchable(text: $searchText)
+        .environment(viewModel)
     }
 }
 

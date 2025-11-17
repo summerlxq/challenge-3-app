@@ -8,7 +8,17 @@
 import SwiftUI
 
 struct ExpiredView: View {
-    @StateObject var viewModel = foodInventoryView()
+    @Environment(foodInventoryView.self) var viewModel
+    
+    var numOfExpired: Int {
+        var expiredCount = 0
+        for item in viewModel.foodItems {
+            if item.daysUntilExpiration < 0 {
+                expiredCount += 1
+            }
+        }
+        return expiredCount
+    }
     
     var body: some View {
         ScrollView {
