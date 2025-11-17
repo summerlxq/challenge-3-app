@@ -10,13 +10,13 @@ import SwiftUI
 import UIKit
 import VisionKit
 import Combine
-class CropModel: ObservableObject{
-    @Published var scannedPages: [UIImage] = []
-}
+//class CropModel: ObservableObject{
+//    @Published var scannedPages: UIImage?
+//}
 
 struct CameraView: UIViewControllerRepresentable {
         
-        let didFinishWith: ((_ result: Result<[UIImage], Error>) -> Void)
+        let didFinishWith: ((_ result: Result<UIImage, Error>) -> Void)
         let didCancel: () -> Void
         
         func makeUIViewController(context: Context) -> VNDocumentCameraViewController {
@@ -39,12 +39,14 @@ struct CameraView: UIViewControllerRepresentable {
             }
             
             func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
-                var scannedPages = [UIImage]()
-                for i in 0..<scan.pageCount {
-                    scannedPages.append(scan.imageOfPage(at: i))
+                var scannedPages: UIImage?
+//                for i in 0..<scan.pageCount {
+                scannedPages = scan.imageOfPage(at:0)
+//                }
+                if scannedPages != nil {
+                    scannerView.didFinishWith(.success(scannedPages!))
                 }
                 
-                scannerView.didFinishWith(.success(scannedPages))
             }
             
             func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {

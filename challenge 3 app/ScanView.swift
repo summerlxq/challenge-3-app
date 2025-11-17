@@ -1,3 +1,5 @@
+//DELETE THIS AFTER: password for testphone: 577218
+
 //IMPORTS
 import SwiftUI
 import PhotosUI
@@ -9,7 +11,7 @@ struct ScanView: View{
     @State private var selectedImage: UIImage? //holds the loaded image
     @State private var showingCamera = false //control camera sheet visibility
     @State private var viewModel = VisionModel()
-    @StateObject var cropVM = CropModel()
+//    @StateObject var cropVM = CropModel()
     @State private var navigate = false
     var body: some View{
         
@@ -41,21 +43,20 @@ struct ScanView: View{
                     .padding(.horizontal)
             }
             .sheet(isPresented: $showingCamera){
-                CameraView(didFinishWith: { result in
+                
+                CameraView { result in
                     switch result{
-                    case .success(let images):
-                        cropVM.scannedPages = images
+                    case .success(let image):
+                        selectedImage = image
                     case .failure(let error):
                         print("Scan failed: \(error.localizedDescription)")
                     }
                     showingCamera = false
-            
-                    
-                }, didCancel:{
-                    showingCamera = false
 
+                } didCancel: {
+                    showingCamera = false
                 }
-            )
+
             }
             .sheet(isPresented: $navigate){
                 IngredientView()
@@ -79,8 +80,8 @@ struct ScanView: View{
             .onChange(of: selectedItem) { _, newItem in
                 if let newItem = newItem {
                     Task {
-                        if let data = try? await newItem.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                            selectedImage = image // update the selected image
+                        if let data = try? await newItem.loadTransferable(type: Data.self) {
+                            selectedImage = UIImage(data: data) // update the selected image
                         }
                     }
                 }
@@ -190,7 +191,9 @@ struct IngredientView: View{
     @Environment(VisionModel.self) var viewModel
     
     var body: some View{
-        Text(viewModel.foods.description)
+        List(viewModel.foods, id: \.name){food in
+            Text(food.name)
+        }
         
     }
 }
