@@ -43,3 +43,7 @@ struct ExpiringView: View {
         }
     }
 }
+
+#Preview {
+    ExpiringView()
+}

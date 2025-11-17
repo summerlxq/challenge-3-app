@@ -18,6 +18,7 @@ struct ContentView: View {
     
     @Environment(\.modelContext) var modelContext
     @Query var allFoodItems: [FoodItem]
+    @State private var selectedType: Foodtype = .all
     
     func removeRows(at offsets: IndexSet) {
         for index in offsets {
@@ -26,7 +27,6 @@ struct ContentView: View {
     }
     // remove rows in list when function is called
     
-    @State private var selectedType: Foodtype = .all
     // variable of picker
     @State var viewModel = foodInventoryView()
     @State private var searchText = ""
@@ -136,7 +136,7 @@ struct ContentView: View {
                         .onDelete(perform: removeRows)
                     }
                     Section("this week") {
-                        ForEach(allFoodItems) { item in
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -154,7 +154,7 @@ struct ContentView: View {
                         }
                     }
                     Section("next week") {
-                        ForEach(allFoodItems) { item in
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -171,8 +171,8 @@ struct ContentView: View {
                             }
                         }
                     }
-                    Section("later") {
-                        ForEach(allFoodItems) { item in
+                    Section("future") {
+                        ForEach(viewModel.foodItems) { item in
                             if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
                                     selectedItem = item
@@ -210,4 +210,3 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-

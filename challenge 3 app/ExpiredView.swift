@@ -20,6 +20,13 @@ struct ExpiredView: View {
         return expiredCount
     }
     
+    var sortedExpiredItems: [FoodItem] {
+        viewModel.foodItems
+            .filter { $0.daysUntilExpiration < 0 }
+            .sorted { $0.daysUntilExpiration > $1.daysUntilExpiration }
+    }
+    
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -42,4 +49,8 @@ struct ExpiredView: View {
             }
         }
     }
+}
+
+#Preview {
+    ExpiredView()
 }
