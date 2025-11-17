@@ -28,7 +28,7 @@ struct ContentView: View {
     // remove rows in list when function is called
     
     // variable of picker
-    @State var viewModel = foodInventoryView()
+    @State var viewModel = FoodInventoryView()
     @State private var searchText = ""
     
 //    @State private var allFoodItems: [FoodItem] = [

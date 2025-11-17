@@ -1,5 +1,5 @@
 //
-//  foodPlace.swift
+//  FoodLocation.swift
 //  challenge 3 app
 //
 //  Created by Ashley Leng on 16/11/25.
@@ -8,7 +8,7 @@
     import Foundation
     import FoundationModels
 
-    class foodPlace {
+    class FoodLocation {
         static func getStorageLocation(for foodName: String) async -> Foodtype {
             let model = SystemLanguageModel.default
             if case .available = model.availability {

@@ -11,7 +11,7 @@ import SwiftUI
 import Observation
 
 @Observable
-class foodInventoryView {
+class FoodInventoryView {
     var foodItems: [FoodItem] = []
     
     init() {

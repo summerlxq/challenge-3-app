@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ExpiringView: View {
-    @Environment(foodInventoryView.self) var viewModel
+    @Environment(FoodInventoryView.self) var viewModel
     
     var numOfExpiring: Int {
         var expiringCount = 0
