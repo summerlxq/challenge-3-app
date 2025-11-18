@@ -1,4 +1,3 @@
-//DELETE THIS AFTER: password for testphone: 577218
 
 //IMPORTS
 import SwiftUI
@@ -192,10 +191,7 @@ class VisionModel{
 
 
 //VALUES OF TABLE TO BE STORED
-struct Food: Identifiable {
-    let id: UUID = UUID()
-    var name: String
-}
+
 #Preview {
     ScanView()
 }
@@ -230,6 +226,22 @@ struct IngredientView: View{
                 ToolbarItem(placement: .topBarLeading){
                     EditButton()
                 }
+                ToolbarItem(placement: .topBarTrailing){
+//                    EditButton()
+                    Button{
+                        Task{
+                            for food in viewModel.foods{
+                                print(await FoodLocation.getStorageLocation(for: food.name))
+                                
+                            }
+
+                        }
+                                                
+                    }label:{
+                        Text("Confirm")
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing){
                     Button{
                         viewModel.addFood(name: "New Food")
