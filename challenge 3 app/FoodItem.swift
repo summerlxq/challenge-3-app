@@ -25,7 +25,7 @@ class FoodItem: Identifiable, Equatable {
     
     init(
         id: UUID = UUID(),
-        nameOfFood: String = "",
+        nameOfFood: String,
         dateScanned: Date = Date(),
         dateExpiring: Date,
         quantity: Int = 1,

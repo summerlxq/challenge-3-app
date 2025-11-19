@@ -119,20 +119,7 @@ struct SwiftUIView: View {
     }
     
     
-    @Generable
-    struct Prediction {
-        @Guide(description: "The name of the food item")
-        var name: String
-        
-        @Guide(description: "The predicted expiration date in YYYY-MM-DD format based on USDA guidelines and standard shelf life for this specific food in the given storage location")
-        var expiryDate: String
-        
-        @Guide(description: "The date the food was purchased in YYYY-MM-DD format")
-        var dateBought: String
-        
-        @Guide(description: "The storage location where the food is kept (Fridge, Freezer, or Pantry)")
-        var location: String
-    }
+    
 }
 #Preview {
     SwiftUIView()
