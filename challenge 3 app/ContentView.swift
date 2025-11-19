@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-//test
+
 import PhotosUI
 import Vision
 import VisionKit
@@ -65,7 +65,7 @@ struct ContentView: View {
         return expiredCount
     }
     
-    // test run
+    
     @State private var selectedPhotoItem: PhotosPickerItem? // holds the selected photo
     @State private var selectedImage: UIImage? //holds the loaded image
     @State private var showingCamera = false //control camera sheet visibility
@@ -73,7 +73,7 @@ struct ContentView: View {
     @State private var viewModel = VisionModel()
     //    @StateObject var cropVM = CropModel()
     @State private var navigate = false
-    // run
+    
     
     var body: some View {
         NavigationStack {
@@ -223,10 +223,10 @@ struct ContentView: View {
             }
             .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
             
-//            .sheet(isPresented: $navigate){
-//                IngredientView()
-//                    .environment(viewModel)
-//            }
+            .sheet(isPresented: $navigate){
+                IngredientView()
+                    .environment(viewModel)
+            }
             
             .sheet(isPresented: $showingCamera) {
                 CameraView { result in
