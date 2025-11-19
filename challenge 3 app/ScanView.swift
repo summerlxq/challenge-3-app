@@ -1,11 +1,10 @@
-//DELETE THIS AFTER: password for testphone: 577218
 
 //IMPORTS
 import SwiftUI
 import PhotosUI
 import Vision
 import VisionKit
-
+import SwiftData
 struct ScanView: View{
     @State private var selectedItem: PhotosPickerItem? // holds the selected photo
     @State private var selectedImage: UIImage? //holds the loaded image
@@ -13,10 +12,16 @@ struct ScanView: View{
     @State private var viewModel = VisionModel()
 //    @StateObject var cropVM = CropModel()
     @State private var navigate = false
+    @Environment(\.modelContext) var modelContext
+    @State private var goBack = false
     var body: some View{
         
             
         VStack{
+            NavigationLink("Go to Detail", value: "detail")
+                                .navigationDestination(isPresented: $goBack) {
+                                    ContentView()   // navigate back here
+                                }
             // display selected image
             if let selectedImage = selectedImage{
                 Image(uiImage: selectedImage)
@@ -60,7 +65,9 @@ struct ScanView: View{
                     showingCamera = false
                 }
             }
-            .sheet(isPresented: $navigate){
+            .sheet(isPresented: $navigate, onDismiss:{
+                goBack = true
+            } ){
                 IngredientView()
                     .environment(viewModel)
             }
@@ -99,7 +106,7 @@ struct ScanView: View{
                     navigate = true
                     print("done")
                     print(viewModel.foods)
-                                    }
+                }
             }
         }
     }
@@ -197,10 +204,7 @@ class VisionModel{
 
 
 //VALUES OF TABLE TO BE STORED
-struct Food: Identifiable {
-    let id: UUID = UUID()
-    var name: String
-}
+
 #Preview {
     ScanView()
 }
@@ -208,7 +212,9 @@ struct Food: Identifiable {
 // Ingredients display view
 struct IngredientView: View{
     @Environment(VisionModel.self) var viewModel
-    
+    @Environment(\.modelContext) var modelContext
+    @State var is_active = false
+    @Environment(\.dismiss) private var dismiss
     var body: some View{
         
         @Bindable var viewModel = viewModel
@@ -235,6 +241,7 @@ struct IngredientView: View{
                 ToolbarItem(placement: .topBarLeading){
                     EditButton()
                 }
+                
                 ToolbarItem(placement: .topBarTrailing){
                     Button{
                         viewModel.addFood(name: "New Food")
@@ -243,13 +250,30 @@ struct IngredientView: View{
                     }
                     .accessibilityLabel("Add ingredient")
                 }
+                 
+                ToolbarSpacer(.fixed)
+                
+                ToolbarItem(placement: .topBarTrailing){
+                        Button{
+                            print("Hello")
+                            Task{
+                                for food in viewModel.foods{
+                                    let food_place = await FoodLocation.getStorageLocation(for: food.name)
+                                    let myfooditem = await FoodLocation.predictExpiry(foodName: food.name, foodType: food_place)
+                                    modelContext.insert(myfooditem)
+                                    dismiss()
+                                    
+                                    
+                                }
+                                
+                            }
+                            
+                        }label:{
+                            Text("Next")
+                        }
+                }
             }
         }
+        
     }
-    
 }
-        
-//        List(viewModel.foods, id: \.name){food in
-//            Text(food.name)
-//        }
-        

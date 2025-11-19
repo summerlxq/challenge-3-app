@@ -11,7 +11,9 @@ import SwiftData
 import PhotosUI
 import Vision
 import VisionKit
+import FoundationModels
 
+@Generable
 enum Foodtype: String, CaseIterable, Identifiable, Codable {
     case all, pantry, fridge, freezer
     var id: Self { self }
