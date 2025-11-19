@@ -155,8 +155,11 @@ struct HomeView: View {
                     // separates picker from items below
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
-                            Button("\(item.nameOfFood)") {
-                                selectedItem = item
+//                            Button("\(item.nameOfFood)") {
+//                                selectedItem = item
+//                            }
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                Text(item.nameOfFood)
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -170,8 +173,11 @@ struct HomeView: View {
                 Section("this week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
-                            Button("\(item.nameOfFood)") {
-                                selectedItem = item
+//                            Button("\(item.nameOfFood)") {
+//                                selectedItem = item
+//                            }
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                Text(item.nameOfFood)
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -186,8 +192,11 @@ struct HomeView: View {
                 Section("next week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
-                            Button("\(item.nameOfFood)") {
-                                selectedItem = item
+//                            Button("\(item.nameOfFood)") {
+//                                selectedItem = item
+//                            }
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                Text(item.nameOfFood)
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -201,8 +210,11 @@ struct HomeView: View {
                 Section("later") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
-                            Button("\(item.nameOfFood)") {
-                                selectedItem = item
+//                            Button("\(item.nameOfFood)") {
+//                                selectedItem = item
+//                            }
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                Text(item.nameOfFood)
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -214,15 +226,15 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(item: $selectedItem) { item in
-                VStack {
-                    Text("\(item.nameOfFood)")
-                        .font(.largeTitle)
-                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-                    Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-                    Text("Days to expiry: \(item.daysUntilExpiration)")
-                }
-            }
+//            .sheet(item: $selectedItem) { item in
+//                VStack {
+//                    Text("\(item.nameOfFood)")
+//                        .font(.largeTitle)
+//                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+//                    Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+//                    Text("Days to expiry: \(item.daysUntilExpiration)")
+//                }
+//            }
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -249,7 +261,7 @@ struct HomeView: View {
         .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
         
         .sheet(isPresented: $navigate){
-            IngredientView()
+            IngredientView(navigate: $navigate)
                 .environment(viewModel)
         }
         

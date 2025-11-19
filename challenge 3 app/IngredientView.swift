@@ -12,6 +12,11 @@ struct IngredientView: View{
     @Environment(\.modelContext) var modelContext
     @State var is_active = false
     @Environment(\.dismiss) private var dismiss
+    @State private var isLoading = false
+    @State private var isShown = false
+    @Binding var navigate: Bool
+    
+    @State private var foods: [FoodItem] = []
     var body: some View{
         
         @Bindable var viewModel = viewModel
@@ -53,22 +58,32 @@ struct IngredientView: View{
                 ToolbarItem(placement: .topBarTrailing){
                     Button{
                         print("Hello")
+                        isLoading = true
                         Task{
                             for food in viewModel.foods{
                                 let food_place = await FoodLocation.getStorageLocation(for: food.name)
                                 let myfooditem = await FoodLocation.predictExpiry(foodName: food.name, foodType: food_place)
-                                modelContext.insert(myfooditem)
-                                dismiss()
-                                
-                                
+                                foods.append(myfooditem)
+                                //modelContext.insert(myfooditem)
+                                //dismiss()
                             }
-                            
+                            isLoading = false
+                            isShown = true
                         }
                         
                     }label:{
-                        Text("Next")
+                        if isLoading{
+                            ProgressView()
+                            
+                        }else{
+                            Text("Next")
+                        }
+                        
                     }
                 }
+            }
+            .navigationDestination(isPresented: $isShown) {
+                ConfirmationView(foodItems: $foods, navigate: $navigate)
             }
         }
         
