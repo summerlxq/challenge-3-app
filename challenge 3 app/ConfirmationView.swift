@@ -20,19 +20,19 @@ struct ConfirmationView: View {
                 }
         
             }
-            .toolbar{
-                ToolbarItem(placement: .topBarTrailing){
-                    Button{
-                        for food in foodItems{
-                            modelContext.insert(food)
-                        }
-                        navigate = false
-        
-                    }label: {
-                        Text("Save")
+        }
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing){
+                Button{
+                    for food in foodItems{
+                        modelContext.insert(food)
                     }
-    
+                    navigate = false
+                    
+                }label: {
+                    Text("Save")
                 }
+                
             }
         }
     }
