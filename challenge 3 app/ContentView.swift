@@ -7,6 +7,10 @@
 
 import SwiftUI
 import SwiftData
+//test
+import PhotosUI
+import Vision
+import VisionKit
 
 enum Foodtype: String, CaseIterable, Identifiable, Codable {
     case all, pantry, fridge, freezer
@@ -58,6 +62,16 @@ struct ContentView: View {
         }
         return expiredCount
     }
+    
+    // test run
+    @State private var selectedPhotoItem: PhotosPickerItem? // holds the selected photo
+    @State private var selectedImage: UIImage? //holds the loaded image
+    @State private var showingCamera = false //control camera sheet visibility
+    @State private var showingSystemPhotoPicker = false
+    @State private var viewModel = VisionModel()
+    //    @StateObject var cropVM = CropModel()
+    @State private var navigate = false
+    // run
     
     var body: some View {
         NavigationStack {
@@ -157,7 +171,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                    Section("future") {
+                    Section("later") {
                         ForEach(foodItems) { item in
                             if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
                                 Button("\(item.nameOfFood)") {
@@ -184,17 +198,70 @@ struct ContentView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink(destination: ScanView()) {
-                        Text("+")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showingCamera = true
+                        } label: {
+                            Label("Scan Receipt", systemImage: "document.viewfinder")
+                        }
+                        
+                        Button {
+                            showingSystemPhotoPicker = true
+                        } label: {
+                            Label("Pick photo", systemImage: "photo")
+                        }
+                        
+                    } label: {
+                        Label("Menu", systemImage: "plus")
                     }
-                    .font(.largeTitle)
+                    
+
                 }
             }
-            .navigationTitle("Home")
+            .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
+            
+//            .sheet(isPresented: $navigate){
+//                IngredientView()
+//                    .environment(viewModel)
+//            }
+            
+            .sheet(isPresented: $showingCamera) {
+                CameraView { result in
+                    switch result {
+                    case .success(let image):
+                        selectedImage = image
+                    case .failure(let error):
+                        print("Scan failed: \(error.localizedDescription)")
+                    }
+                    showingCamera = false
+                    
+                } didCancel: {
+                    showingCamera = false
+                }
+            }
+            .onChange(of: selectedPhotoItem) { oldValue, newValue in
+                Task {
+                    if let data = try? await newValue?.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        selectedImage = uiImage
+                    }
+                }
+            }
+            .onChange(of: selectedImage) {
+                if let selectedImage, let data = selectedImage.pngData() {
+                    Task {
+                        await viewModel.recognizeTable(in: data)
+                        navigate = true
+                        print("done")
+                        print(viewModel.foods)
+                    }
+                }
+            }
+            .navigationTitle("Shelf")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .searchable(text: $searchText)
+        .searchable(text: $searchText) // TODO: Fix this
     }
 }
 

@@ -33,14 +33,17 @@ struct ScanView: View{
             Button(action: {
                 showingCamera = true //show camera to user
             }){
-                Text("Take Photo")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(25)
-                    .padding(.horizontal)
+                HStack {
+                    Image(systemName: "document.viewfinder")
+                    Text("Scan Receipt")
+                }
+                .font(.headline)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue.opacity(0.7))
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .padding(.horizontal)
             }
             .sheet(isPresented: $showingCamera){
                 
@@ -56,7 +59,6 @@ struct ScanView: View{
                 } didCancel: {
                     showingCamera = false
                 }
-
             }
             .sheet(isPresented: $navigate){
                 IngredientView()
@@ -68,14 +70,17 @@ struct ScanView: View{
                          matching: .images,
                          photoLibrary: .shared()
             ){
-                Text("Select Photo")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.purple)
-                    .foregroundColor(.white)
-                    .cornerRadius(25)
-                    .padding(.horizontal)
+                HStack {
+                    Image(systemName: "photo")
+                    Text("Select Photo")
+                }
+                .font(.headline)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.purple.opacity(0.7))
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .padding(.horizontal)
             }
             .onChange(of: selectedItem) { _, newItem in
                 if let newItem = newItem {
