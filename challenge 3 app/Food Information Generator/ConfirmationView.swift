@@ -6,87 +6,36 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ConfirmationView: View {
-    @State private var buttonText = "Food"
-    @State private var isEditing = false
-    @State private var newText = ""
-    @State private var buttonText2 = "Expiry date"
-    @State private var isEditing2 = false
-    @State private var newText2 = ""
-    
+    @Binding var foodItems: [FoodItem]
+    @Environment(\.modelContext) var modelContext
+    @Binding var navigate: Bool
     var body: some View {
-        VStack {
-            Text("__Title__")
-                .font(.largeTitle)
-            HStack{
-                Menu {
-                    Button("Edit") {
-                        newText = buttonText
-                        isEditing = true
-                    }
-                } label: {
-                    Text(buttonText)
-                        .padding()
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .background(.blue)
-                        .cornerRadius(10)
+        List{
+            ForEach($foodItems){ item in
+                NavigationLink(destination: EditDetailsView(item: item)){
+                    Text(item.nameOfFood.wrappedValue)
                 }
-                
-                Menu {
-                    Button("Edit") {
-                        newText2 = buttonText2
-                        isEditing2 = true
-                    }
-                } label: {
-                    Text(buttonText2)
-                        .padding()
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .background(.blue)
-                        .cornerRadius(10)
-                }
-                
+        
             }
-            
-            
-            if isEditing {
-                VStack {
-                    TextField("Enter food item", text: $newText)
-                        .textFieldStyle(.roundedBorder)
-                        .padding()
-                    Button("Save") {
-                        buttonText = newText
-                        isEditing = false
+            .toolbar{
+                ToolbarItem(placement: .topBarTrailing){
+                    Button{
+                        for food in foodItems{
+                            modelContext.insert(food)
+                        }
+                        navigate = false
+        
+                    }label: {
+                        Text("Save")
                     }
-                    .padding(.horizontal)
+    
                 }
             }
-            
-            
-            if isEditing2 {
-                VStack {
-                    TextField("Enter expiry date", text: $newText2)
-                        .textFieldStyle(.roundedBorder)
-                        .padding()
-                    Button("Save") {
-                        buttonText2 = newText2
-                        isEditing2 = false
-                    }
-                    .padding(.horizontal)
-                }
-            }
-            
-            
-            
-            
-            Spacer()
         }
     }
 }
 
-#Preview {
-    ConfirmationView()
-}
 
