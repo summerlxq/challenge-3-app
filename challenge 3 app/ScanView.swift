@@ -18,6 +18,10 @@ struct ScanView: View{
         
             
         VStack{
+            NavigationLink("Go to Detail", value: "detail")
+                                .navigationDestination(isPresented: $goBack) {
+                                    ContentView()   // navigate back here
+                                }
             // display selected image
             if let selectedImage = selectedImage{
                 Image(uiImage: selectedImage)
@@ -59,7 +63,9 @@ struct ScanView: View{
                 }
 
             }
-            .sheet(isPresented: $navigate){
+            .sheet(isPresented: $navigate, onDismiss:{
+                goBack = true
+            } ){
                 IngredientView()
                     .environment(viewModel)
             }
@@ -251,6 +257,7 @@ struct IngredientView: View{
                                     let myfooditem = await FoodLocation.predictExpiry(foodName: food.name, foodType: food_place)
                                     modelContext.insert(myfooditem)
                                     dismiss()
+                                    
                                     
                                 }
                                 
