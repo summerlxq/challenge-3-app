@@ -21,9 +21,6 @@ struct HomeView: View {
     
     @State var searchText: String
     
-   
-    
-    
     //    @State private var allFoodItems: [FoodItem] = [
     //        FoodItem(nameOfFood: "lettuce", dateScanned: Date(), dateExpiring: Date(), storageLocation: .fridge),
     //        FoodItem(nameOfFood: "biscuits", dateScanned: Date(), dateExpiring: Date(), storageLocation: .pantry),
@@ -101,6 +98,7 @@ struct HomeView: View {
     }
     
     @State private var navigate = false
+    
     var body: some View {
         VStack {
             HStack {
