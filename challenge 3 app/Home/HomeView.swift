@@ -59,6 +59,8 @@ struct HomeView: View {
     @State private var showingSystemPhotoPicker = false
     @State private var viewModel = VisionModel()
     //    @StateObject var cropVM = CropModel()
+    @State private var navigate = false
+    @State private var showIngredientView = false
     
     init(
         selectedItem: FoodItem? = nil,
@@ -70,7 +72,8 @@ struct HomeView: View {
         showingCamera: Bool = false,
         showingSystemPhotoPicker: Bool = false,
         viewModel: VisionModel = VisionModel(),
-        navigate: Bool = false
+        navigate: Bool = false,
+        showIngredientView: Bool = false
     ) {
         self.selectedItem = selectedItem
         self.selectedType = selectedType
@@ -82,6 +85,7 @@ struct HomeView: View {
         self.showingSystemPhotoPicker = showingSystemPhotoPicker
         self.viewModel = viewModel
         self.navigate = navigate
+        self.showIngredientView = showIngredientView
         
         let predicate = #Predicate<FoodItem> { foodItem in
             if searchText.isEmpty {
@@ -97,8 +101,6 @@ struct HomeView: View {
         )
     }
     
-    @State private var navigate = false
-    
     var body: some View {
         VStack {
             HStack {
@@ -108,12 +110,18 @@ struct HomeView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .fill(Color.yellow)
-                        Text("\(numOfExpiring) \n Expiring...")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.black)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 3)
+                        VStack {
+                            Text("\(numOfExpiring)")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                            Text("Expiring")
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                        }
                     }
                     .frame(maxWidth: .infinity) // takes up as much space as it can
                     .aspectRatio(1.5, contentMode: .fit) // ratio of width to height
@@ -126,12 +134,18 @@ struct HomeView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .fill(Color.red)
-                        Text("\(numOfExpired) \n Expired...")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.black)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 3)
+                        VStack {
+                            Text("\(numOfExpired)")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                            Text("Expired")
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 3)
+                        }
                     }
                     .frame(maxWidth: .infinity) // takes up as much space as it can
                     .aspectRatio(1.5, contentMode: .fit) // ratio of width to height
@@ -142,14 +156,14 @@ struct HomeView: View {
             List { // creates a continuous list of items
                 Picker("Foodtype", selection: $selectedType) {
                     // selection of picker from Foodtype
-                    Text("all").tag(Foodtype.all)
-                    Text("pantry").tag(Foodtype.pantry)
-                    Text("fridge").tag(Foodtype.fridge)
-                    Text("freezer").tag(Foodtype.freezer)
+                    Text("All").tag(Foodtype.all)
+                    Text("Pantry").tag(Foodtype.pantry)
+                    Text("Fridge").tag(Foodtype.fridge)
+                    Text("Freezer").tag(Foodtype.freezer)
                 }
                 .pickerStyle(.segmented)
                 
-                Section("expired") {
+                Section("Expired") {
                     // separates picker from items below
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
@@ -168,7 +182,7 @@ struct HomeView: View {
                         }
                     }
                 }
-                Section("this week") {
+                Section("This week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
 //                            Button("\(item.nameOfFood)") {
@@ -187,7 +201,7 @@ struct HomeView: View {
                         
                     }
                 }
-                Section("next week") {
+                Section("Next week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
 //                            Button("\(item.nameOfFood)") {
@@ -205,7 +219,7 @@ struct HomeView: View {
                         }
                     }
                 }
-                Section("later") {
+                Section("Later") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
 //                            Button("\(item.nameOfFood)") {
@@ -240,7 +254,7 @@ struct HomeView: View {
                     Button {
                         showingCamera = true
                     } label: {
-                        Label("Scan Receipt", systemImage: "document.viewfinder")
+                        Label("Scan receipt", systemImage: "document.viewfinder")
                     }
                     
                     Button {
@@ -249,11 +263,15 @@ struct HomeView: View {
                         Label("Pick photo", systemImage: "photo")
                     }
                     
+                    Button {
+                        showIngredientView = true
+                    } label: {
+                        Label("Manually enter", systemImage:"keyboard")
+                    }
+                    
                 } label: {
                     Label("Menu", systemImage: "plus")
                 }
-                
-
             }
         }
         .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
@@ -263,19 +281,24 @@ struct HomeView: View {
                 .environment(viewModel)
         }
         
+        .sheet(isPresented: $showIngredientView) {
+            IngredientView(navigate: $navigate)
+                .environment(viewModel)
+        }
+        
         .sheet(isPresented: $showingCamera) {
-            CameraView { result in
-                switch result {
-                case .success(let image):
-                    selectedImage = image
-                case .failure(let error):
-                    print("Scan failed: \(error.localizedDescription)")
+                CameraView { result in
+                    switch result {
+                    case .success(let image):
+                        selectedImage = image
+                    case .failure(let error):
+                        print("Scan failed: \(error.localizedDescription)")
+                    }
+                    showingCamera = false
+                } didCancel: {
+                    showingCamera = false
                 }
-                showingCamera = false
-                
-            } didCancel: {
-                showingCamera = false
-            }
+                .ignoresSafeArea()
         }
         .onChange(of: selectedPhotoItem) { oldValue, newValue in
             Task {
@@ -299,3 +322,4 @@ struct HomeView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
