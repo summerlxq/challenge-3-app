@@ -282,7 +282,7 @@ struct HomeView: View {
         }
         
         .sheet(isPresented: $showIngredientView) {
-            IngredientView(navigate: $navigate)
+            IngredientView(navigate: $showIngredientView)
                 .environment(viewModel)
         }
         
@@ -313,6 +313,7 @@ struct HomeView: View {
                 Task {
                     await viewModel.recognizeTable(in: data)
                     navigate = true
+//                    showIngredientView = true
                     print("done")
                     print(viewModel.foods)
                 }
