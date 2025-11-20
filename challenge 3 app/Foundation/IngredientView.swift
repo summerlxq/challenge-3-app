@@ -57,18 +57,22 @@ struct IngredientView: View{
                 
                 ToolbarItem(placement: .topBarTrailing){
                     Button{
-                        print("Hello")
                         isLoading = true
                         Task{
                             for food in viewModel.foods{
                                 let food_place = await FoodLocation.getStorageLocation(for: food.name)
                                 let myfooditem = await FoodLocation.predictExpiry(foodName: food.name, foodType: food_place)
-                                foods.append(myfooditem)
+                                if !foods.contains(where: {isSame($0, myfooditem)}){
+                                    foods.append(myfooditem)
+                                }
                                 //modelContext.insert(myfooditem)
                                 //dismiss()
                             }
                             isLoading = false
                             isShown = true
+                        }
+                        func isSame(_ a: FoodItem, _ b: FoodItem)->Bool{
+                            a.nameOfFood == b.nameOfFood
                         }
                         
                     }label:{
