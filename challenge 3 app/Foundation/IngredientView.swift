@@ -15,6 +15,8 @@ struct IngredientView: View{
     @State private var isLoading = false
     @State private var isShown = false
     @Binding var navigate: Bool
+//    @Binding var showIngredientView: Bool
+    
     @State private var showNewField = false
     @FocusState private var isNewFieldFocused: Bool
     
