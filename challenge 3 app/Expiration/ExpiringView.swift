@@ -24,9 +24,6 @@ struct ExpiringView: View {
     var body: some View {
         ScrollView {
             VStack {
-                Text("EXPIRING SOON")
-                    .font(.largeTitle)
-                
                 ForEach(foodItems) { item in
                     if item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5 {
                         HStack {
@@ -41,6 +38,7 @@ struct ExpiringView: View {
                     }
                 }
             }
+            .navigationTitle("Expiring")
         }
     }
 }

@@ -12,8 +12,8 @@ struct BindableEditDetailsView: View {
     var body: some View {
         List{
             TextField("Name",text: $item.nameOfFood)
-            DatePicker("Date Scanned",selection: $item.dateScanned)
-            DatePicker("Expiry Date",selection: $item.dateExpiring)
+            DatePicker("Date Scanned",selection: $item.dateScanned, displayedComponents: .date)
+            DatePicker("Expiry Date",selection: $item.dateExpiring, displayedComponents: .date)
             Picker("Storage Location", selection: $item.storageLocation) {
                 
                 Text("Pantry")
