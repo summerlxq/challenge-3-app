@@ -15,17 +15,23 @@ struct IngredientView: View{
     @State private var isLoading = false
     @State private var isShown = false
     @Binding var navigate: Bool
+    @State private var showNewField = false
+    @FocusState private var isNewFieldFocused: Bool
     
     @State private var foods: [FoodItem] = []
+    
     var body: some View{
         
         @Bindable var viewModel = viewModel
+        
         NavigationStack{
             VStack{
-                Text("Edit the names of the foods and delete non-food items")
+                Text("No food item available.")
                 List{
                     ForEach($viewModel.foods){ $food in
-                        TextField("Name", text: $food.name)
+                        TextField("Name", text: $food.name, onCommit: {
+                            isNewFieldFocused = false
+                        })
                     }
                     .onDelete{ indexSet in
                         viewModel.deleteFoods(at: indexSet)
@@ -33,24 +39,33 @@ struct IngredientView: View{
                     .onMove{ indices, newOffset in
                         viewModel.moveFoods(from: indices, to: newOffset)
                     }
-                    
+                    .focused($isNewFieldFocused)
                 }
+                
+//                if showNewField {
+//                    TextField("New item", text: $newItem)
+//                }
             }
             .padding(.vertical, 8)
-            .navigationTitle("Confirm Foods")
+            .padding(.horizontal, 3)
+            .navigationTitle("Confirm List")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 ToolbarItem(placement: .topBarLeading){
                     EditButton()
                 }
-                
                 ToolbarItem(placement: .topBarTrailing){
                     Button{
-                        viewModel.addFood(name: "New Food")
+                        viewModel.addFood(name: "")
+                        showNewField = true
+                        
+                        DispatchQueue.main.async {
+                            isNewFieldFocused = true
+                        }
                     }label:{
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel("Add ingredient")
+                    .accessibilityLabel("Add item to list")
                 }
                 
                 ToolbarSpacer(.fixed)
@@ -93,3 +108,4 @@ struct IngredientView: View{
         
     }
 }
+

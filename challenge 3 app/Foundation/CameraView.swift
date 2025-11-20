@@ -59,6 +59,7 @@ struct CameraView: UIViewControllerRepresentable {
         }
     }
 
+
 /*
 struct CameraView: UIViewControllerRepresentable{
     @Binding var image: UIImage? //bind to parent view's state
