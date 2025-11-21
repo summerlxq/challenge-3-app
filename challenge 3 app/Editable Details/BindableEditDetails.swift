@@ -14,6 +14,9 @@ struct BindableEditDetailsView: View {
     var body: some View {
         
         Form{
+            Section("Name"){
+                TextField("Name",text: $item.nameOfFood)
+            }
             Section("Dates"){
                 DatePicker("Date Scanned",selection: $item.dateScanned, displayedComponents: .date)
                 DatePicker("Expiry Date",selection: $item.dateExpiring, displayedComponents: .date)
@@ -45,7 +48,7 @@ struct BindableEditDetailsView: View {
                 Text("Save")
             }
         }
-        .navigationTitle(item.nameOfFood)
+        .navigationTitle("Edit Details")
     }
 }
 

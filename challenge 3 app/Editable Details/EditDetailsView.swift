@@ -14,6 +14,9 @@ struct EditDetailsView: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         Form{
+            Section("Name"){
+                TextField("Name",text: $item.nameOfFood)
+            }
             Section("Dates"){
                 DatePicker("Date Scanned", selection: $item.dateScanned, displayedComponents: .date)
                 DatePicker("Expiry Date", selection: $item.dateExpiring, displayedComponents: .date)
@@ -38,7 +41,7 @@ struct EditDetailsView: View {
             }
             
         }
-        .navigationTitle("\(item.nameOfFood)")
+        .navigationTitle("Edit Details")
     }
 }
 
