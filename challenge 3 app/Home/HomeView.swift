@@ -190,6 +190,7 @@ struct HomeView: View {
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }
@@ -222,6 +223,7 @@ struct HomeView: View {
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }
@@ -255,6 +257,7 @@ struct HomeView: View {
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }
@@ -287,6 +290,7 @@ struct HomeView: View {
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }
