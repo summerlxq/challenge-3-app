@@ -167,11 +167,25 @@ struct HomeView: View {
                     // separates picker from items below
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("0")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -185,11 +199,25 @@ struct HomeView: View {
                 Section("This week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -204,11 +232,25 @@ struct HomeView: View {
                 Section("Next week") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {
@@ -222,11 +264,25 @@ struct HomeView: View {
                 Section("Later") {
                     ForEach(foodItems) { item in
                         if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {

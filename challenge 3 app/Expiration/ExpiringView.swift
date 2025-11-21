@@ -32,7 +32,7 @@ struct ExpiringView: View {
                             Text("\(item.daysUntilExpiration) days")
                         }
                         .padding()
-                        .background(Color.yellow.opacity(0.3))
+                        .background(Color.yellow)
                         .cornerRadius(25)
                         .padding(.horizontal)
                     }

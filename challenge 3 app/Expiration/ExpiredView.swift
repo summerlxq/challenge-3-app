@@ -38,7 +38,7 @@ struct ExpiredView: View {
                             Text("\(abs(item.daysUntilExpiration)) days ago")
                         }
                         .padding()
-                        .background(Color.red.opacity(0.3))
+                        .background(Color.red)
                         .cornerRadius(25)
                         .padding(.horizontal)
                     }
