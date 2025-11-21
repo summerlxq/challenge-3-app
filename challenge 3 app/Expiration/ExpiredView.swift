@@ -49,6 +49,10 @@ struct ExpiredView: View {
                             .cornerRadius(25)
                             .padding(.horizontal)
                         }
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(25)
+                        .padding(.horizontal)
                     }
                 }
             }

@@ -191,6 +191,39 @@ struct HomeView: View {
                 
                 if foodItemsExpired.isEmpty && foodItemsThisWeek.isEmpty && foodItemsNextWeek.isEmpty && foodItemsLater.isEmpty {
                     ContentUnavailableView("No Food Items", systemImage: "fork.knife")
+                Section("Expired") {
+                    // separates picker from items below
+                    ForEach(foodItems) { item in
+                        if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("0")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .swipeActions {
+                                Button("Delete") {
+                                    modelContext.delete(item)
+                                    try? modelContext.save()
+                                }
+                                .tint(.red)
+                            }
+                        }
+                    }
                 }
                 
                 if foodItemsExpired.count > 0 {
@@ -201,12 +234,33 @@ struct HomeView: View {
                             //                            Button("\(item.nameOfFood)") {
                             //                                selectedItem = item
                             //                            }
+                Section("This week") {
+                    ForEach(foodItems) { item in
+                        if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }
@@ -262,12 +316,66 @@ struct HomeView: View {
                             //                            Button("\(item.nameOfFood)") {
                             //                                selectedItem = item
                             //                            }
+                Section("Next week") {
+                    ForEach(foodItems) { item in
+                        if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .swipeActions {
                                 Button("Delete") {
                                     modelContext.delete(item)
+                                    try? modelContext.save()
+                                }
+                                .tint(.red)
+                            }
+                        }
+                    }
+                }
+                Section("Later") {
+                    ForEach(foodItems) { item in
+                        if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.nameOfFood)
+                                            .lineLimit(2)
+                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 0) {
+                                        Text("\(item.daysUntilExpiration)")
+                                            .font(.title2).bold()
+                                            .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                                        Text("Days left")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .swipeActions {
+                                Button("Delete") {
+                                    modelContext.delete(item)
+                                    try? modelContext.save()
                                 }
                                 .tint(.red)
                             }

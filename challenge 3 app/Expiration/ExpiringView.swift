@@ -43,6 +43,10 @@ struct ExpiringView: View {
                             .cornerRadius(25)
                             .padding(.horizontal)
                         }
+                        .padding()
+                        .background(Color.yellow)
+                        .cornerRadius(25)
+                        .padding(.horizontal)
                     }
                     
                 }
