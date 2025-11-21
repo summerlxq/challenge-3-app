@@ -10,9 +10,10 @@ import SwiftData
 
 struct EditDetailsView: View {
     @Binding var item: FoodItem
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         List{
-            TextField("Name",text: $item.nameOfFood)
             DatePicker("Date Scanned", selection: $item.dateScanned, displayedComponents: .date)
             DatePicker("Expiry Date", selection: $item.dateExpiring, displayedComponents: .date)
             Picker("Storage Location", selection: $item.storageLocation) {
@@ -31,7 +32,7 @@ struct EditDetailsView: View {
                     )
             }
         }
-        
+        .navigationTitle($item.nameOfFood)
     }
 }
 
