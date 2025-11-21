@@ -191,16 +191,19 @@ struct HomeView: View {
                 
                 if foodItemsExpired.isEmpty && foodItemsThisWeek.isEmpty && foodItemsNextWeek.isEmpty && foodItemsLater.isEmpty {
                     ContentUnavailableView("No Food Items", systemImage: "fork.knife")
-                Section("Expired") {
-                    // separates picker from items below
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
+                }
+                
+                if foodItemsExpired.count > 0 {
+                    
+                    Section("Expired") {
+                        // separates picker from items below
+                        ForEach(foodItemsExpired) { item in
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 HStack(alignment: .firstTextBaseline) {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.nameOfFood)
                                             .lineLimit(2)
-                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("\(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -226,23 +229,16 @@ struct HomeView: View {
                     }
                 }
                 
-                if foodItemsExpired.count > 0 {
+                if foodItemsThisWeek.count > 0 {
                     
-                    Section("Expired") {
-                        // separates picker from items below
-                        ForEach(foodItemsExpired) { item in
-                            //                            Button("\(item.nameOfFood)") {
-                            //                                selectedItem = item
-                            //                            }
-                Section("This week") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
+                    Section("This week") {
+                        ForEach(foodItemsThisWeek) { item in
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 HStack(alignment: .firstTextBaseline) {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.nameOfFood)
                                             .lineLimit(2)
-                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("\(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -269,62 +265,18 @@ struct HomeView: View {
                     }
                 }
                 
-                if foodItemsThisWeek.count > 0 {
-                    
-                    Section("This week") {
-                        ForEach(foodItemsThisWeek) { item in
-                            //                            Button("\(item.nameOfFood)") {
-                            //                                selectedItem = item
-                            //                            }
-                            NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
-                            }
-                            .swipeActions {
-                                Button("Delete") {
-                                    modelContext.delete(item)
-                                }
-                                .tint(.red)
-                            }
-                            
-                            
-                        }
-                    }
-                }
+                
+                
                 
                 if foodItemsNextWeek.count > 0 {
                     Section("Next week") {
                         ForEach(foodItemsNextWeek) { item in
-                            //                            Button("\(item.nameOfFood)") {
-                            //                                selectedItem = item
-                            //                            }
-                            NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
-                            }
-                            .swipeActions {
-                                Button("Delete") {
-                                    modelContext.delete(item)
-                                }
-                                .tint(.red)
-                            }
-                        }
-                    }
-                }
-                
-                if foodItemsLater.count > 0 {
-                    Section("Later") {
-                        ForEach(foodItemsLater) { item in
-                            //                            Button("\(item.nameOfFood)") {
-                            //                                selectedItem = item
-                            //                            }
-                Section("Next week") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 HStack(alignment: .firstTextBaseline) {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.nameOfFood)
                                             .lineLimit(2)
-                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("\(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -349,15 +301,17 @@ struct HomeView: View {
                         }
                     }
                 }
-                Section("Later") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
+                
+                
+                if foodItemsLater.count > 0 {
+                    Section("Later") {
+                        ForEach(foodItemsLater) { item in
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 HStack(alignment: .firstTextBaseline) {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.nameOfFood)
                                             .lineLimit(2)
-                                        Text("\(item.dateScanned.formatted(date: .abbreviated, time: .omitted)) → \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+                                        Text("\(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
