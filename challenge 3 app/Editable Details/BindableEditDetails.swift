@@ -12,23 +12,29 @@ struct BindableEditDetailsView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     var body: some View {
-        List{
-            DatePicker("Date Scanned",selection: $item.dateScanned, displayedComponents: .date)
-            DatePicker("Expiry Date",selection: $item.dateExpiring, displayedComponents: .date)
-            Picker("Storage Location", selection: $item.storageLocation) {
-                
-                Text("Pantry")
-                    .tag(
-                        Foodtype.pantry
-                    )
-                Text("Fridge")
-                    .tag(
-                        Foodtype.fridge
-                    )
-                Text("Freezer")
-                    .tag(
-                        Foodtype.freezer
-                    )
+        
+        Form{
+            Section("Dates"){
+                DatePicker("Date Scanned",selection: $item.dateScanned, displayedComponents: .date)
+                DatePicker("Expiry Date",selection: $item.dateExpiring, displayedComponents: .date)
+            }
+            Section("Storage"){
+                Picker("Storage Location", selection: $item.storageLocation) {
+                    
+                    Text("Pantry")
+                        .tag(
+                            Foodtype.pantry
+                        )
+                    Text("Fridge")
+                        .tag(
+                            Foodtype.fridge
+                        )
+                    Text("Freezer")
+                        .tag(
+                            Foodtype.freezer
+                        )
+                }
+
             }
             Button{
                 modelContext.insert(item)
