@@ -30,7 +30,7 @@ struct BindableEditDetailsView: View {
                     )
             }
         }
-        
+        .navigationTitle(item.nameOfFood)
     }
 }
 

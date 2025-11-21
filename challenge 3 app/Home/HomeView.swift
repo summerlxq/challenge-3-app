@@ -61,6 +61,8 @@ struct HomeView: View {
     //    @StateObject var cropVM = CropModel()
     @State private var navigate = false
     @State private var showIngredientView = false
+    @State private var foods: [FoodItem] = []
+    
     
     init(
         selectedItem: FoodItem? = nil,
@@ -73,7 +75,8 @@ struct HomeView: View {
         showingSystemPhotoPicker: Bool = false,
         viewModel: VisionModel = VisionModel(),
         navigate: Bool = false,
-        showIngredientView: Bool = false
+        showIngredientView: Bool = false,
+        foods: [FoodItem] = []
     ) {
         self.selectedItem = selectedItem
         self.selectedType = selectedType
@@ -86,6 +89,7 @@ struct HomeView: View {
         self.viewModel = viewModel
         self.navigate = navigate
         self.showIngredientView = showIngredientView
+        self.foods = foods
         
         let predicate = #Predicate<FoodItem> { foodItem in
             if searchText.isEmpty {
@@ -100,6 +104,27 @@ struct HomeView: View {
             sort: [SortDescriptor(\.nameOfFood)]
         )
     }
+    
+    var foodItemsExpired: [FoodItem] { foodItems.filter { item in
+        item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all)
+    }
+    }
+    
+    var foodItemsThisWeek: [FoodItem] { foodItems.filter { item in
+        item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all)
+    }
+    }
+    
+    var foodItemsNextWeek: [FoodItem] { foodItems.filter { item in
+        item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all)
+    }
+    }
+    
+    var foodItemsLater: [FoodItem] { foodItems.filter { item in
+        item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all)
+    }
+    }
+    
     
     var body: some View {
         VStack {
@@ -153,6 +178,7 @@ struct HomeView: View {
                 }
             }
             .padding()
+            
             List { // creates a continuous list of items
                 Picker("Foodtype", selection: $selectedType) {
                     // selection of picker from Foodtype
@@ -163,31 +189,18 @@ struct HomeView: View {
                 }
                 .pickerStyle(.segmented)
                 
-                Section("Expired") {
-                    // separates picker from items below
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration < 0 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
-                            NavigationLink(destination: BindableEditDetailsView(item: item)){
-                                Text(item.nameOfFood)
-                            }
-                            .swipeActions {
-                                Button("Delete") {
-                                    modelContext.delete(item)
-                                }
-                                .tint(.red)
-                            }
-                        }
-                    }
+                if foodItemsExpired.isEmpty && foodItemsThisWeek.isEmpty && foodItemsNextWeek.isEmpty && foodItemsLater.isEmpty {
+                    ContentUnavailableView("No Food Items", systemImage: "fork.knife")
                 }
-                Section("This week") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration < 7 && item.daysUntilExpiration >= 0 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
+                
+                if foodItemsExpired.count > 0 {
+                    
+                    Section("Expired") {
+                        // separates picker from items below
+                        ForEach(foodItemsExpired) { item in
+                            //                            Button("\(item.nameOfFood)") {
+                            //                                selectedItem = item
+                            //                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 Text(item.nameOfFood)
                             }
@@ -201,12 +214,35 @@ struct HomeView: View {
                         
                     }
                 }
-                Section("Next week") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration > 7 && item.daysUntilExpiration <= 14 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
+                
+                if foodItemsThisWeek.count > 0 {
+                    
+                    Section("This week") {
+                        ForEach(foodItemsThisWeek) { item in
+                            //                            Button("\(item.nameOfFood)") {
+                            //                                selectedItem = item
+                            //                            }
+                            NavigationLink(destination: BindableEditDetailsView(item: item)){
+                                Text(item.nameOfFood)
+                            }
+                            .swipeActions {
+                                Button("Delete") {
+                                    modelContext.delete(item)
+                                }
+                                .tint(.red)
+                            }
+                            
+                            
+                        }
+                    }
+                }
+                
+                if foodItemsNextWeek.count > 0 {
+                    Section("Next week") {
+                        ForEach(foodItemsNextWeek) { item in
+                            //                            Button("\(item.nameOfFood)") {
+                            //                                selectedItem = item
+                            //                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 Text(item.nameOfFood)
                             }
@@ -219,12 +255,13 @@ struct HomeView: View {
                         }
                     }
                 }
-                Section("Later") {
-                    ForEach(foodItems) { item in
-                        if item.daysUntilExpiration > 14 && (item.storageLocation == selectedType || selectedType == .all) {
-//                            Button("\(item.nameOfFood)") {
-//                                selectedItem = item
-//                            }
+                
+                if foodItemsLater.count > 0 {
+                    Section("Later") {
+                        ForEach(foodItemsLater) { item in
+                            //                            Button("\(item.nameOfFood)") {
+                            //                                selectedItem = item
+                            //                            }
                             NavigationLink(destination: BindableEditDetailsView(item: item)){
                                 Text(item.nameOfFood)
                             }
@@ -238,55 +275,57 @@ struct HomeView: View {
                     }
                 }
             }
-//            .sheet(item: $selectedItem) { item in
-//                VStack {
-//                    Text("\(item.nameOfFood)")
-//                        .font(.largeTitle)
-//                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
-//                    Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
-//                    Text("Days to expiry: \(item.daysUntilExpiration)")
-//                }
-//            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        showingCamera = true
+            //            .sheet(item: $selectedItem) { item in
+            //                VStack {
+            //                    Text("\(item.nameOfFood)")
+            //                        .font(.largeTitle)
+            //                    Text("Date scanned: \(item.dateScanned.formatted(date: .abbreviated, time: .omitted))")
+            //                    Text("Date expiring: \(item.dateExpiring.formatted(date: .abbreviated, time: .omitted))")
+            //                    Text("Days to expiry: \(item.daysUntilExpiration)")
+            //                }
+            //            }
+            
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showingCamera = true
+                        } label: {
+                            Label("Scan receipt", systemImage: "document.viewfinder")
+                        }
+                        
+                        Button {
+                            showingSystemPhotoPicker = true
+                        } label: {
+                            Label("Pick photo", systemImage: "photo")
+                        }
+                        
+                        Button {
+                            foods = []
+                            print(foods)
+                            showIngredientView = true
+                        } label: {
+                            Label("Manually enter", systemImage:"keyboard")
+                        }
+                        
                     } label: {
-                        Label("Scan receipt", systemImage: "document.viewfinder")
+                        Label("Menu", systemImage: "plus")
                     }
-                    
-                    Button {
-                        showingSystemPhotoPicker = true
-                    } label: {
-                        Label("Pick photo", systemImage: "photo")
-                    }
-                    
-                    Button {
-                        showIngredientView = true
-                    } label: {
-                        Label("Manually enter", systemImage:"keyboard")
-                    }
-                    
-                } label: {
-                    Label("Menu", systemImage: "plus")
                 }
             }
-        }
-        .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
-        
-        .sheet(isPresented: $navigate){
-            IngredientView(navigate: $navigate)
-                .environment(viewModel)
-        }
-        
-        .sheet(isPresented: $showIngredientView) {
-            IngredientView(navigate: $showIngredientView)
-                .environment(viewModel)
-        }
-        
-        .sheet(isPresented: $showingCamera) {
+            .photosPicker(isPresented: $showingSystemPhotoPicker, selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared())
+            
+            .sheet(isPresented: $navigate){
+                IngredientView(navigate: $navigate, foods: $foods)
+                    .environment(viewModel)
+            }
+            
+            .sheet(isPresented: $showIngredientView) {
+                IngredientView(navigate: $showIngredientView, foods: $foods)
+                    .environment(viewModel)
+            }
+            
+            .sheet(isPresented: $showingCamera) {
                 CameraView { result in
                     switch result {
                     case .success(let image):
@@ -299,28 +338,30 @@ struct HomeView: View {
                     showingCamera = false
                 }
                 .ignoresSafeArea()
-        }
-        .onChange(of: selectedPhotoItem) { oldValue, newValue in
-            Task {
-                if let data = try? await newValue?.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    selectedImage = uiImage
-                }
             }
-        }
-        .onChange(of: selectedImage) {
-            if let selectedImage, let data = selectedImage.pngData() {
+            .onChange(of: selectedPhotoItem) { oldValue, newValue in
                 Task {
-                    await viewModel.recognizeTable(in: data)
-                    navigate = true
-//                    showIngredientView = true
-                    print("done")
-                    print(viewModel.foods)
+                    if let data = try? await newValue?.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        selectedImage = uiImage
+                    }
                 }
             }
+            .onChange(of: selectedImage) {
+                if let selectedImage, let data = selectedImage.pngData() {
+                    Task {
+                        await viewModel.recognizeTable(in: data)
+                        navigate = true
+                        foods = []
+                        //                    showIngredientView = true
+                        print("done")
+                        print(viewModel.foods)
+                    }
+                }
+            }
+            .navigationTitle("Shelf")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationTitle("Shelf")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

@@ -28,24 +28,32 @@ struct ExpiredView: View {
     @Query var foodItems: [FoodItem]
     
     var body: some View {
-        ScrollView {
-            VStack {                
-                ForEach(foodItems) { item in
-                    if item.daysUntilExpiration < 0 {
-                        HStack {
-                            Text(item.nameOfFood)
-                            Spacer()
-                            Text("\(abs(item.daysUntilExpiration)) days ago")
+        VStack {
+            if foodItems.filter({ item in
+                item.daysUntilExpiration < 0
+            }).count == 0 {
+                ContentUnavailableView("No Expired Foods", systemImage: "calendar")
+            } else {
+                ScrollView {
+                    VStack {
+                        ForEach(foodItems.filter { item in
+                            item.daysUntilExpiration < 0
+                        }) { item in
+                            HStack {
+                                Text(item.nameOfFood)
+                                Spacer()
+                                Text("\(abs(item.daysUntilExpiration)) days ago")
+                            }
+                            .padding()
+                            .background(Color.red.opacity(0.3))
+                            .cornerRadius(25)
+                            .padding(.horizontal)
                         }
-                        .padding()
-                        .background(Color.red.opacity(0.3))
-                        .cornerRadius(25)
-                        .padding(.horizontal)
                     }
                 }
             }
-            .navigationTitle("Expired")
         }
+        .navigationTitle("Expired")
     }
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct ExpiringView: View {    
+struct ExpiringView: View {
     var numOfExpiring: Int {
         var expiringCount = 0
         for item in foodItems {
@@ -22,24 +22,33 @@ struct ExpiringView: View {
     @Query var foodItems: [FoodItem]
     
     var body: some View {
-        ScrollView {
-            VStack {
-                ForEach(foodItems) { item in
-                    if item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5 {
-                        HStack {
-                            Text(item.nameOfFood)
-                            Spacer()
-                            Text("\(item.daysUntilExpiration) days")
+        VStack {
+            if foodItems.filter({ item in
+                item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5
+            }).count == 0 {
+                ContentUnavailableView("No Expiring Foods", systemImage: "calendar")
+            } else {
+                ScrollView {
+                    VStack {
+                        ForEach(foodItems.filter { item in
+                            item.daysUntilExpiration >= 0 && item.daysUntilExpiration <= 5
+                        }) { item in
+                            HStack {
+                                Text(item.nameOfFood)
+                                Spacer()
+                                Text("\(item.daysUntilExpiration) days")
+                            }
+                            .padding()
+                            .background(Color.yellow.opacity(0.3))
+                            .cornerRadius(25)
+                            .padding(.horizontal)
                         }
-                        .padding()
-                        .background(Color.yellow.opacity(0.3))
-                        .cornerRadius(25)
-                        .padding(.horizontal)
                     }
+                    
                 }
             }
-            .navigationTitle("Expiring")
         }
+        .navigationTitle("Expiring")
     }
 }
 

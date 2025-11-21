@@ -31,7 +31,7 @@ struct EditDetailsView: View {
                     )
             }
         }
-        
+        .navigationTitle("\(item.nameOfFood)")
     }
 }
 
